@@ -200,14 +200,10 @@ class Game {
     private $player;
     private $dragonBallQuestManager;
     private $currentEnemy;
-    private $collectQuestion = [];
+    
     public function __construct(){
         $this->dragonBallQuestManager = new DragonBallQuestManager;
         $this->launchGame();
-    }
-
-    public function addQuestion($q){
-        array_push($collectionQuestion, $q);
     }
     
     public function stringBuffer($string){
@@ -575,7 +571,7 @@ class Game {
         return $this->fightMenu();
     }
 
-    public function createEnigma(){
+    public function createEnigmas(){
         $questions = [
             "Who is the protagonist of the Dragon Ball series, known for his signature spiky hairstyle and his quest for the Dragon Balls?",
             "What is the name of the wish-granting dragon that is summoned when all seven Dragon Balls are collected?",
@@ -605,14 +601,16 @@ class Game {
             "Akira Toriyama"
         ];
         
+        $collection= [];
         for($i = 1; $i <=7; $i++){
             $question = new Question($questions[$i-1], $option[$i-1], $answer[$i-1]);
-            $this->collectQuestion->addQuestion($question);
+            array_push($collection, $question);
         }
+        return $collection;
     }
 
-    public function doEnigma(){
-        
+    public function doEnigma($question){
+        $question->getReponses()[i];
     }
 
 
