@@ -106,6 +106,7 @@ class DragonBallQuestManager{
     }
 }
 
+
 class DragonBallQuest {
     private $title;
     private $description;
@@ -116,8 +117,8 @@ class DragonBallQuest {
     public function __construct($t, $d, $e1, $e2, $e){
         $this->title = $t;
         $this->description = $d;
-        $this->enemy1 = new Villain ($e1[0], $e1[1], $e1[2]);
-        $this->enemy2 = new Villain ($e2[0], $e2[1], $e2[2]);
+        $this->enemy1 = new Villain ($e1[0], $e1[2], $e1[1]);
+        $this->enemy2 = new Villain ($e2[0], $e2[2], $e2[1]);
         $this->enigma = $e;
     }
 
@@ -152,6 +153,38 @@ class DragonBallQuest {
     }
     public function setEnigma($e){
         $this->enigma = $e;
+    }
+}
+
+class Question{
+    private $question;
+    private $option = [];
+    private $goodOption;
+
+    public function __construct($Q, $O, $GO){
+        $this->question = $Q;
+        $this->option = $O;
+        $this->goodOption = $GO;
+    }
+
+    public function getQuestion(){
+        return $this->question;
+    }
+    public function getOption(){
+        return $this->option;
+    }
+    public function getGoodOption(){
+        return $this->goodOption;
+    }
+
+    public function setQuestion($newquestion){
+        $this->question = $newquestion;
+    }
+    public function setOption($newOption){
+        $this->option = $newOption;
+    }
+    public function setGoodOption($newGoodOption){
+        $this->goodOption = $newGoodOption;
     }
 }
 
@@ -238,21 +271,21 @@ class Game {
     // CREATE ENEMIES
     public function createEnemies(){
         $enemies = [
-            ["Freezer", 20, "Téléportation"],
-            ["Cellule", 20, "Kienzan"],
-            ["Majin Buu", 20, "Taiyoken"],
-            ["Vegeta", 20, "Kamehameha"],
-            ["Napa", 20, "Makankosappo"],
-            ["Raditz", 20, "Vol"],
-            ["Broly", 20, "Ultimate Gohan"],
-            ["Glacière", 20, "glace"],
-            ["Dr Gero", 20, "hypnose"],
-            ["Zamasu", 20, "Saut dans le temps"],
-            ["Babidi", 20, "power"],
-            ["Dabura", 20, "Vol"],
-            ["Ail Jr.", 20, "hypnose"],
-            ["Turles", 20, "absorption d'énergie"],
-            ["Capitaine Ginyu", 20, "absorption d'énergie"]
+            ["Freezer", 20, 10, "Téléportation"],
+            ["Cellule", 20, 10, "Kienzan"],
+            ["Majin Buu", 20, 10, "Taiyoken"],
+            ["Vegeta", 20, 10, "Kamehameha"],
+            ["Napa", 20, 10, "Makankosappo"],
+            ["Raditz", 20, 10, "Vol"],
+            ["Broly", 20, 10, "Ultimate Gohan"],
+            ["Glacière", 20, 10, "glace"],
+            ["Dr Gero", 20, 10, "hypnose"],
+            ["Zamasu", 20, 10, "Saut dans le temps"],
+            ["Babidi", 20, 10, "power"],
+            ["Dabura", 20, 10, "Vol"],
+            ["Ail Jr.", 20, 10, "hypnose"],
+            ["Turles", 20, 10, "absorption d'énergie"],
+            ["Capitaine Ginyu", 20, 10, "absorption d'énergie"]
         ];
         return $enemies;
     }
@@ -345,7 +378,7 @@ class Game {
 
         $this->currentEnemy = $quest->getEnemy1();
         $this->fightTransition();
-        if($player->getHp()<=0){
+        if($this->player->getHp()<=0){
             return $this->playerDeath();
         }
         $this->doEnigma($quest->getEnigma());
@@ -431,17 +464,24 @@ class Game {
             $this->player->setMana($this->player->getMana() + 3);
         }
         
-        
         $this->stringBuffer($string);
+        readline("\nPress enter to continue : ");
         return $this->enemyTurn();
     }
 
     public function playerDefend(){
+        $string = "\nYou chose to defend !\n";
+        $this->stringBuffer($string);
+
         $this->player->setIsDefending(true);
+        readline("\nPress enter to continue : ");
         return $this->enemyTurn();
     }
 
     public function playerPower(){
+        $string = "\nYou chose to use your power !\n";
+        $this->stringBuffer($string);
+        readline("\nPress enter to continue : ");
 
         return $this->enemyTurn();
     }
@@ -451,10 +491,13 @@ class Game {
         if($this->currentEnemy->getHp()<=0){
             return $this->checkFight();
         }
+        
         $string = "\nIt's your enemy's turn !\n";
         $this->stringBuffer($string);
-        
+
         $this->currentEnemy->setIsDefending(false);
+        
+        readline("\nPress enter to continue : ");
         
         $choice = rand(1,10);
         if($this->currentEnemy->getMana() > 49 && $choice>=8 ){
@@ -476,32 +519,67 @@ class Game {
             $this->player->setMana($this->player->getMana() + 3);
         }
         $this->stringBuffer($string);
+        $string = "You won !";
+        readline("\nPress enter to continue : ");
         $this->checkFight();
     }
 
     public function enemyDefend(){
         $this->currentEnemy->setIsDefending(true);
+        $string = "\nThe enemy has chosen to defend himself !\n";
+        $this->stringBuffer($string);
+        readline("\nPress enter to continue : ");
         $this->checkFight();
     }
 
     public function enemyPower(){
+        $string = "\nThe enemy has chosen to use his power !\n";
+        $this->stringBuffer($string);
+        readline("\nPress enter to continue : ");
         $this->checkFight();
     }
 
     public function checkFight(){
         if($this->currentEnemy->getHp()<=0){
-            $this->playerWinFight();
+            $string = "You won !";
+            $this->stringBuffer($string);
+            readline("\nPress enter to continue : ");
+            return false;
         }
         if($this->player->getHp()<=0){
-            $this->playerLoseFight();
+            $string = "You lost !";
+            $this->stringBuffer($string);
+            readline("\nPress enter to continue : ");
+            return $this->mainMenu();
         }
+        return $this->fightMenu();
     }
 
-    public function playerWinFight(){
-        
+    public function createEnigma(){
+        $question = [
+            "Who is the protagonist of the Dragon Ball series, known for his signature spiky hairstyle and his quest for the Dragon Balls?",
+            "What is the name of the wish-granting dragon that is summoned when all seven Dragon Balls are collected?",
+            "Which of these techniques involves concentrating one's inner energy and releasing it as a powerful blast?",
+            "Who is Goku's longtime friend and rival, initially introduced as an antagonist but later becomes one of the main heroes?",
+            "What are the objects of immense power that, when gathered, can grant any wish to the one who collects them all?",
+            "Which powerful alien race does Frieza belong to, known for their ruthless nature and powerful transformations?",
+            "Who is the creator of the Dragon Ball series, responsible for the original manga that inspired the anime adaptation?"
+        ];
+        $option = [
+            ["Vegeta", "Gohan", "Goku",  "Piccolo"],
+            ["Frieza", "Shenron", "Cell", "Majin Buu"],
+            ["Kamehameha", "Spirit Bomb", "Destructo Disc", "Solar Flare"],
+            ["Krillin", "Yamcha", "Tien", "Vegeta"],
+            ["Dragon Pearls", "Mystic Crystals", "", ""],
+            ["", "", "", ""],
+            ["", "", "", ""],
+            ["", "", "", ""],
+            ["", "", "", ""]
+        ];
     }
-    public function playerLoseFight(){
-        
+
+    public function doEnigma(){
+        echo "heyyyyy BB";
     }
 
 
