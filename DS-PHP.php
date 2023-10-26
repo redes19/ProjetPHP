@@ -281,9 +281,8 @@ class Game {
             }
         } while ($created == false);
         
-        $q = "Tu t'appelles " . $hero->getName() . "et tu aura donc " . $hero->getDamage() . " de dégâts, tu aura " . $hero->getMana() . " de mana, et tu aura " . $hero->getHp() . " de vie.\n";
-        $this->stringBuffer($q);
-        $this->player = $hero;
+        $string = "Tu t'appelles " . $this->player->getName() . "et tu aura donc " . $this->player>getDamage() . " de dégâts, tu aura " . $this->player->getMana() . " de mana, et tu aura " . $this->player->getHp() . " de vie.\n";
+        $this->stringBuffer($string);
         readline("\nPress enter to continue : ");
         popen("cls", "w");
         $this->mainMenu();
