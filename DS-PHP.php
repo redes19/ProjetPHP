@@ -5,11 +5,12 @@ class Personnage {
     protected $damage;
     protected $mana;
     protected $hp;
+    protected $isDefending = false;
 
-    public function __construct($N, $D, $M, $H){
+    public function __construct($N, $D, $H){
         $this->name = $N;
         $this->damage = $D;
-        $this->mana = $M;
+        $this->mana = 0;
         $this->hp = $H;
     }
 
@@ -25,6 +26,9 @@ class Personnage {
     public function getHp(){
         return $this->hp;
     }
+    public function getIsDefending(){
+        return $this->isDefending;
+    }
     
     public function setName($newName){
         $this->name = $newName;
@@ -38,6 +42,9 @@ class Personnage {
     public function setHp($newHp){
         $this->hp = $newHp;
     }
+    public function setIsDefending($newisDefending){
+        $this->isDefending = $newisDefending;
+    }
 }
 
 class Hero extends Personnage{
@@ -46,8 +53,8 @@ class Hero extends Personnage{
     private $maxHealth;
     private $dragonBall = 0;
 
-    public function __construct($N, $D, $M, $H, $MH){
-        parent::__construct($N, $D, $M, $H);
+    public function __construct($N, $D, $H, $MH){
+        parent::__construct($N, $D, $H);
         $this->level = 0;
         $this->xp = 0;
         $this->maxHealth = $MH;
@@ -74,10 +81,10 @@ class Hero extends Personnage{
     }
 }
 
-class Vilain extends Personnage{
+class Villain extends Personnage{
 
-    public function __construct($N, $D, $M, $H){
-        parent::__construct($N, $D, $M, $H);
+    public function __construct($N, $D, $H){
+        parent::__construct($N, $D, $H);
     }
 }
 
@@ -109,8 +116,8 @@ class DragonBallQuest {
     public function __construct($t, $d, $e1, $e2, $e){
         $this->title = $t;
         $this->description = $d;
-        $this->enemy1 = $e1;
-        $this->enemy2 = $e2;
+        $this->enemy1 = new Villain ($e1[0], $e1[1], $e1[2]);
+        $this->enemy2 = new Villain ($e2[0], $e2[1], $e2[2]);
         $this->enigma = $e;
     }
 
@@ -181,7 +188,7 @@ class Game {
         echo "                                               ";
         $string = "Welcome ingame\n"; // text to change
         $this->stringBuffer($string);
-        $choice = (string)readline("                                                                          | ");
+        $choice = readline("                                                                          | ");
         switch($choice){
             case 1 : 
                 return $this->createPlayer();
@@ -231,21 +238,21 @@ class Game {
     // CREATE ENEMIES
     public function createEnemies(){
         $enemies = [
-            ["Freezer", "HP", "mana", "Téléportation"],
-            ["Cellule", "HP", "mana", "Kienzan"],
-            ["Majin Buu", "HP", "mana", "Taiyoken"],
-            ["Vegeta", "HP", "mana", "Kamehameha"],
-            ["Napa", "HP", "mana", "Makankosappo"],
-            ["Raditz", "HP", "mana", "Vol"],
-            ["Broly", "HP", "mana", "Ultimate Gohan"],
-            ["Glacière", "HP", "mana", "glace"],
-            ["Dr Gero", "HP", "mana", "hypnose"],
-            ["Zamasu", "HP", "mana", "Saut dans le temps"],
-            ["Babidi", "HP", "mana", "power"],
-            ["Dabura", "HP", "mana", "Vol"],
-            ["Ail Jr.", "HP", "mana", "hypnose"],
-            ["Turles", "HP", "mana", "absorption d'énergie"],
-            ["Capitaine Ginyu", "HP", "mana", "absorption d'énergie"]
+            ["Freezer", 20, "Téléportation"],
+            ["Cellule", 20, "Kienzan"],
+            ["Majin Buu", 20, "Taiyoken"],
+            ["Vegeta", 20, "Kamehameha"],
+            ["Napa", 20, "Makankosappo"],
+            ["Raditz", 20, "Vol"],
+            ["Broly", 20, "Ultimate Gohan"],
+            ["Glacière", 20, "glace"],
+            ["Dr Gero", 20, "hypnose"],
+            ["Zamasu", 20, "Saut dans le temps"],
+            ["Babidi", 20, "power"],
+            ["Dabura", 20, "Vol"],
+            ["Ail Jr.", 20, "hypnose"],
+            ["Turles", 20, "absorption d'énergie"],
+            ["Capitaine Ginyu", 20, "absorption d'énergie"]
         ];
         return $enemies;
     }
@@ -276,12 +283,11 @@ class Game {
             if(strlen($name)==0){
                 echo "\n                                          Your name cannot be registered in our Hero, please retry.\n";
             }else{
-                $this->player = new Hero($name, 12, 10, 15 , 15);
+                $this->player = new Hero ($name, 12, 15 , 15);
                 $created = true;
             }
         } while ($created == false);
-        
-        $string = "Tu t'appelles " . $this->player->getName() . "et tu aura donc " . $this->player>getDamage() . " de dégâts, tu aura " . $this->player->getMana() . " de mana, et tu aura " . $this->player->getHp() . " de vie.\n";
+        $string = "Tu t'appelles " . $this->player->getName() . " et tu aura donc " . $this->player->getDamage() . " de dégâts, tu aura " . $this->player->getMana() . " de mana, et tu aura " . $this->player->getHp() . " de vie.\n";
         $this->stringBuffer($string);
         readline("\nPress enter to continue : ");
         popen("cls", "w");
@@ -311,6 +317,9 @@ class Game {
                 break;
             case 4 : 
                 return $this->quitGame();
+                break;
+            default :
+                return $this->mainMenu();
                 break;
         }
     }
@@ -382,9 +391,11 @@ class Game {
     }
 
     public function fightMenu(){
-        $string = "Your are in a main fight.\n\nVoulez vous\n\n1-attaquer\n2-se défendre\n3-utiliser votre super attaque\n";
+        $this->currentEnemy->setIsDefending(false);
+
+        $string = "\n\nVoulez vous\n\n1-attaquer\n2-se défendre\n3-utiliser votre super attaque\n";
         $this->stringBuffer($string);
-        $choice = (int)readline(" ");
+        $choice = readline(" ");
         switch ($choice) {
             case 1:
                 $this->playerAttack();
@@ -395,25 +406,103 @@ class Game {
             case 3:
                 $this->playerPower();
                 break;
-            
-            default:
-                fightMenu();
+            default :
+                $this->fightMenu();
                 break;
         }
     }
 
     public function playerAttack(){
+        $rand = rand(1, 10);
 
+        if($rand >= 2){
+            $damage = $this->player->getDamage();
+        } else{
+            echo "you missed the attack and did only half damage";
+            $damage = floor($this->player->getDamage() / 2);
+            // $this->player->setHP() --;
+        }
+        if($this->currentEnemy->getIsDefending()== true){
+            $this->currentEnemy->setHp($this->currentEnemy->getHp() - floor($damage/2) );
+            $string = "\nYou did" . $damage ." damage !\n";
+        }else{
+            $this->currentEnemy->setHp($this->currentEnemy->getHp() - $damage );
+            $string = "\nYou did" . $damage ." damage !\n";
+            $this->player->setMana($this->player->getMana() + 3);
+        }
+        
+        
+        $this->stringBuffer($string);
+        return $this->enemyTurn();
     }
 
     public function playerDefend(){
-
+        $this->player->setIsDefending(true);
+        return $this->enemyTurn();
     }
 
     public function playerPower(){
 
+        return $this->enemyTurn();
     }
 
+
+    public function enemyTurn(){
+        if($this->currentEnemy->getHp()<=0){
+            return $this->checkFight();
+        }
+        $string = "\nIt's your enemy's turn !\n";
+        $this->stringBuffer($string);
+        
+        $this->currentEnemy->setIsDefending(false);
+        
+        $choice = rand(1,10);
+        if($this->currentEnemy->getMana() > 49 && $choice>=8 ){
+            return $this->enemyPower();
+        }elseif($choice<8 && $choice>6){
+            return $this->enemyDefend();
+        }else{
+            return $this->enemyAttack();
+        }
+    }
+    
+    public function enemyAttack(){
+        if($this->player->getIsDefending()== true){
+            $this->player->setHp($this->player->getHp() - floor($this->currentEnemy->getDamage()/2 ) );
+            $string = "\nYou took" . floor($this->currentEnemy->getDamage()/2 ) ." damage !\n";
+        }else{
+            $this->player->setHp($this->player->getHp() - $this->currentEnemy->getDamage() );
+            $string = "\nYou took" . $this->currentEnemy->getDamage() ." damage !\n";
+            $this->player->setMana($this->player->getMana() + 3);
+        }
+        $this->stringBuffer($string);
+        $this->checkFight();
+    }
+
+    public function enemyDefend(){
+        $this->currentEnemy->setIsDefending(true);
+        $this->checkFight();
+    }
+
+    public function enemyPower(){
+        $this->checkFight();
+    }
+
+    public function checkFight(){
+        if($this->currentEnemy->getHp()<=0){
+            $this->playerWinFight();
+        }
+        if($this->player->getHp()<=0){
+            $this->playerLoseFight();
+        }
+    }
+
+    public function playerWinFight(){
+        
+    }
+    public function playerLoseFight(){
+        
+    }
 
 
     // ----- STATS
@@ -424,7 +513,6 @@ class Game {
         readline("\nPress enter to return on main : ");
         popen("cls", "w");
         $this->mainMenu();
-
     }
 
     // ----- LEAVE GAME
