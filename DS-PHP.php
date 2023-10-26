@@ -5,6 +5,8 @@ class Personnage {
     protected $damage;
     protected $mana;
     protected $hp;
+    private $maxHealth;
+
     protected $isDefending = false;
 
     public function __construct($N, $D, $H){
@@ -12,6 +14,7 @@ class Personnage {
         $this->damage = $D;
         $this->mana = 0;
         $this->hp = $H;
+        $this->maxHealth = $H;
     }
 
     public function getName(){
@@ -29,6 +32,9 @@ class Personnage {
     public function getIsDefending(){
         return $this->isDefending;
     }
+    public function getMaxHealth(){
+        return $this->maxHealth;
+    }
     
     public function setName($newName){
         $this->name = $newName;
@@ -45,19 +51,20 @@ class Personnage {
     public function setIsDefending($newisDefending){
         $this->isDefending = $newisDefending;
     }
+    public function setMaxHealth($m){
+        $this->maxHealth = $m;
+    }
 }
 
 class Hero extends Personnage{
     private $level;
     private $xp;
-    private $maxHealth;
     private $dragonBall = 0;
 
-    public function __construct($N, $D, $H, $MH){
+    public function __construct($N, $D, $H){
         parent::__construct($N, $D, $H);
         $this->level = 0;
         $this->xp = 0;
-        $this->maxHealth = $MH;
     }
 
     public function getLevel(){
@@ -77,7 +84,7 @@ class Hero extends Personnage{
         $this->xp = $newXp;
     }
     public function setDragonBall($newDragonBall){
-        $this->dragonBall = $newnewDragonBall;
+        $this->dragonBall = $newDragonBall;
     }
 }
 
@@ -186,15 +193,21 @@ class Question{
     public function setGoodOption($newGoodOption){
         $this->goodOption = $newGoodOption;
     }
+
 }
 
 class Game {
     private $player;
     private $dragonBallQuestManager;
     private $currentEnemy;
+    private $collectQuestion = [];
     public function __construct(){
         $this->dragonBallQuestManager = new DragonBallQuestManager;
         $this->launchGame();
+    }
+
+    public function addQuestion($q){
+        array_push($collectionQuestion, $q);
     }
     
     public function stringBuffer($string){
@@ -271,21 +284,21 @@ class Game {
     // CREATE ENEMIES
     public function createEnemies(){
         $enemies = [
-            ["Freezer", 20, 10, "Téléportation"],
-            ["Cellule", 20, 10, "Kienzan"],
-            ["Majin Buu", 20, 10, "Taiyoken"],
-            ["Vegeta", 20, 10, "Kamehameha"],
-            ["Napa", 20, 10, "Makankosappo"],
-            ["Raditz", 20, 10, "Vol"],
-            ["Broly", 20, 10, "Ultimate Gohan"],
-            ["Glacière", 20, 10, "glace"],
-            ["Dr Gero", 20, 10, "hypnose"],
-            ["Zamasu", 20, 10, "Saut dans le temps"],
-            ["Babidi", 20, 10, "power"],
-            ["Dabura", 20, 10, "Vol"],
-            ["Ail Jr.", 20, 10, "hypnose"],
-            ["Turles", 20, 10, "absorption d'énergie"],
-            ["Capitaine Ginyu", 20, 10, "absorption d'énergie"]
+            ["Freezer", 10, 10, "Téléportation"],
+            ["Cellule", 10, 10, "Kienzan"],
+            ["Majin Buu", 10, 10, "Taiyoken"],
+            ["Vegeta", 10, 10, "Kamehameha"],
+            ["Napa", 10, 10, "Makankosappo"],
+            ["Raditz", 10, 10, "Vol"],
+            ["Broly", 10, 10, "Ultimate Gohan"],
+            ["Glacière", 10, 10, "glace"],
+            ["Dr Gero", 10, 10, "hypnose"],
+            ["Zamasu", 10, 10, "Saut dans le temps"],
+            ["Babidi", 10, 10, "power"],
+            ["Dabura", 10, 10, "Vol"],
+            ["Ail Jr.", 10, 10, "hypnose"],
+            ["Turles", 10, 10, "absorption d'énergie"],
+            ["Capitaine Ginyu", 10, 10, "absorption d'énergie"]
         ];
         return $enemies;
     }
@@ -316,7 +329,7 @@ class Game {
             if(strlen($name)==0){
                 echo "\n                                          Your name cannot be registered in our Hero, please retry.\n";
             }else{
-                $this->player = new Hero ($name, 12, 15 , 15);
+                $this->player = new Hero ($name, 12, 15);
                 $created = true;
             }
         } while ($created == false);
@@ -376,15 +389,18 @@ class Game {
         readline("\nPress enter to continue : ");
         popen("cls", "w");
 
+        $this->resetStats();
         $this->currentEnemy = $quest->getEnemy1();
+        $this->resetEnemyStats();
         $this->fightTransition();
         if($this->player->getHp()<=0){
             return $this->playerDeath();
         }
         $this->doEnigma($quest->getEnigma());
         $this->currentEnemy = $quest->getEnemy2();
+        $this->resetEnemyStats();
         $this->fightTransition();
-        if($player->getHp()<=0){
+        if($this->player->getHp()<=0){
             return $this->playerDeath();
         }
         $this->currentEnemy = null;
@@ -422,11 +438,16 @@ class Game {
         $this->player->setHp($this->player->getMaxHealth());
         $this->player->setMana(0);
     }
+    
+    public function resetEnemyStats(){
+        $this->currentEnemy->setHp($this->currentEnemy->getMaxHealth());
+        $this->currentEnemy->setMana(0);
+    }
 
     public function fightMenu(){
         $this->currentEnemy->setIsDefending(false);
-
-        $string = "\n\nVoulez vous\n\n1-attaquer\n2-se défendre\n3-utiliser votre super attaque\n";
+        
+        $string = "\n\nVotre vie : " . $this->player->getHp() . "\nVie de l'ennemi : " . $this->currentEnemy->getHp() ."\nVoulez vous\n\n1-attaquer\n2-se défendre\n3-utiliser votre super attaque\n";
         $this->stringBuffer($string);
         $choice = readline(" ");
         switch ($choice) {
@@ -485,7 +506,6 @@ class Game {
 
         return $this->enemyTurn();
     }
-
 
     public function enemyTurn(){
         if($this->currentEnemy->getHp()<=0){
@@ -556,7 +576,7 @@ class Game {
     }
 
     public function createEnigma(){
-        $question = [
+        $questions = [
             "Who is the protagonist of the Dragon Ball series, known for his signature spiky hairstyle and his quest for the Dragon Balls?",
             "What is the name of the wish-granting dragon that is summoned when all seven Dragon Balls are collected?",
             "Which of these techniques involves concentrating one's inner energy and releasing it as a powerful blast?",
@@ -570,16 +590,29 @@ class Game {
             ["Frieza", "Shenron", "Cell", "Majin Buu"],
             ["Kamehameha", "Spirit Bomb", "Destructo Disc", "Solar Flare"],
             ["Krillin", "Yamcha", "Tien", "Vegeta"],
-            ["Dragon Pearls", "Mystic Crystals", "", ""],
-            ["", "", "", ""],
-            ["", "", "", ""],
-            ["", "", "", ""],
-            ["", "", "", ""]
+            ["Dragon Pearls", "Mystic Crystals", "Infinity Stones", "Dragon Balls"],
+            ["Saiyans", "Namekians", "Majins", "Frost Demons"],
+            ["Hayao Miyazaki", "Masashi Kishimoto", "Akira Toriyama", "Eiichiro Oda"]
         ];
+
+        $answer = [
+            "Goku",
+            "Shenron",
+            "Kamehameha",
+            "Vegeta",
+            "Dragon Balls",
+            "Frost Demons",
+            "Akira Toriyama"
+        ];
+        
+        for($i = 1; $i <=7; $i++){
+            $question = new Question($questions[$i-1], $option[$i-1], $answer[$i-1]);
+            $this->collectQuestion->addQuestion($question);
+        }
     }
 
     public function doEnigma(){
-        echo "heyyyyy BB";
+        
     }
 
 
