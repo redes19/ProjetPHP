@@ -18,7 +18,7 @@ class Personnage {
         $this->maxHealth = $H;
     }
 
-    // creat a getter and setter
+    // Create a getter and setter
     public function getName(){
         return $this->name;
     }
@@ -691,6 +691,7 @@ class Game {
     }
 
     public function playerWinQuest(){
+        popen("cls","w");
         echo "\n                                                            ";
         $string = "You earned this DragonBall !";
         $this->stringBuffer($string);
@@ -765,7 +766,7 @@ class Game {
             $this->currentEnemy->setHp($this->currentEnemy->getHp() - $damage );
             $string .= "You did " . $damage ." damage !";
             $this->player->setMana($this->player->getMana() + 10);
-            $this->currentEnemy->setMana($this->currentEnemy->getMana() + 10);
+            $this->currentEnemy->setMana($this->currentEnemy->getMana() + 3);
         }
         $text = [$string];
         $this->graphicalManager->fightScreen($text);
@@ -869,7 +870,7 @@ class Game {
         }else{
             $this->player->setHp($this->player->getHp() - $this->currentEnemy->getDamage() );
             $string = "\nYou took " . $this->currentEnemy->getDamage() ." damage !\n";
-            $this->player->setMana($this->player->getMana() + 10);
+            $this->player->setMana($this->player->getMana() + 3);
             $this->currentEnemy->setMana($this->currentEnemy->getMana() + 10);
         }
         $text = [$string];
@@ -900,6 +901,7 @@ class Game {
             $xp = $this->currentEnemy->getMaxHealth() * 2;
             $text = ["You Won ! + " .$xp . "XP" ];
             $this->graphicalManager->fightScreen($text);
+            $this->player->setXp($this->player->getXp() + $xp);
             readline();
             return false;
         }
@@ -953,6 +955,7 @@ class Game {
     }
 
     public function doEnigma($question){
+        popen("cls","w");
         $string = "After this intensive battle, I propose a little riddle to recover a little life.\n\nQuestion : " . $question->getQuestion() ."\n\nYou can choose : \n";
         $this->stringBuffer($string);
         
@@ -1116,7 +1119,6 @@ class Game {
         exit();
     }
 }
-
 
 $game = new Game;
 ?>
