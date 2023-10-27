@@ -341,9 +341,6 @@ function fightScreen($text){
 
     echo $string;
 }
-function fightTransition(){
-    
-}
 }
 
 class Power {
@@ -571,7 +568,6 @@ class Game {
         $string = $quest->getTitle() . "\n\n" . $quest->getDescription();
         $this->stringBuffer($string);
         readline("\nPress enter to continue_");
-        popen("cls", "w");
 
         $this->resetStats();
         $this->currentEnemy = $quest->getEnemy1();
@@ -592,8 +588,10 @@ class Game {
     }
 
     public function fightTransition(){
-        $string = "A fight starts !";
+        popen("cls","w");
+        $string = "\n\n\n\n\n\n                                                                               A fight starts !";
         $this->stringBuffer($string);
+        sleep(1.5);
         // sleep
         // écran qui fade in
         $this->fightMenu();
@@ -866,7 +864,9 @@ class Game {
 
     public function doEnigma($question){
         //TODO
-        // $question->getReponses()[i];
+        $string = "Après ce combat intensif, je te propose une petite enigme pour récupérer un peu de vie.\n\nQuestion : " . $question->getQuestion()[$i] "\n\nVous avez comme option : " . implode(" " . $question->getGoodOption()[$i]);
+        $this->stringBuffer($string);
+
     }
 
     public function createPower(){
