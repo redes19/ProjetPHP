@@ -3,16 +3,16 @@
 class Personnage {
     protected $name;
     protected $damage;
-    protected $mana;
+    protected $mana = 0;
     protected $hp;
     private $maxHealth;
+    private $molecularAttack = false;
 
     protected $isDefending = false;
 
     public function __construct($N, $D, $H){
         $this->name = $N;
         $this->damage = $D;
-        $this->mana = 0;
         $this->hp = $H;
         $this->maxHealth = $H;
     }
@@ -35,6 +35,9 @@ class Personnage {
     public function getMaxHealth(){
         return $this->maxHealth;
     }
+    public function getMolecularAttack(){
+        return $this->molecularAttack;
+    }
     
     public function setName($newName){
         $this->name = $newName;
@@ -54,17 +57,19 @@ class Personnage {
     public function setMaxHealth($m){
         $this->maxHealth = $m;
     }
+    public function setMolecularAttack($bool){
+        $this->molecularAttack = $bool;
+    }
 }
 
 class Hero extends Personnage{
-    private $level;
-    private $xp;
+    private $level = 0;
+    private $xp =0 ;
     private $dragonBall = 0;
+    private $powerList = [];
 
     public function __construct($N, $D, $H){
         parent::__construct($N, $D, $H);
-        $this->level = 0;
-        $this->xp = 0;
     }
 
     public function getLevel(){
@@ -76,6 +81,9 @@ class Hero extends Personnage{
     public function getDragonBall(){
         return $this->dragonBall;
     }
+    public function getPowerList(){
+        return $this->powerList;
+    }
 
     public function setLevel($newLevel){
         $this->level = $newLevel;
@@ -85,6 +93,13 @@ class Hero extends Personnage{
     }
     public function setDragonBall($newDragonBall){
         $this->dragonBall = $newDragonBall;
+    }
+    public function setPowerList($p){
+        $this->powerList = $p;
+    }
+
+    public function addPower($p){
+        array_push($this->powerList, $p);
     }
 }
 
@@ -112,7 +127,6 @@ class DragonBallQuestManager{
         array_push($this->collectionQuest, $q);
     }
 }
-
 
 class DragonBallQuest {
     private $title;
@@ -196,14 +210,201 @@ class Question{
 
 }
 
+class GraphicalManager{
+    private $game;
+    public function __construct($g){
+        $this->game = $g;
+    }
+    function hideCursor($stream = STDOUT) {
+        fprintf($stream, "\033[?25l"); // hide cursor
+        register_shutdown_function(function() use($stream) {
+            fprintf($stream, "\033[?25h"); //show cursor
+        });
+    }
+
+function gameStartScreen(){
+        popen("cls","w");
+        $string = "
+    _____________________________________________________________________________________________________________________________________________
+    |⠀⠀⠀⠀⠀⠀   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣷⣶⣤⣄⡀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀                                                                
+    |⠀⠀⠀⠀⠀   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣿⣿⣿⣿⣷⡒⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀                                                                 
+    |⠀⠀⠀⠀⠀   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⣿⣿⣿⣿⣆⠙⡄⠀⠐⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀                                                                 
+    |⠀⠀⠀⠀   ⠀⠀⠀⠀⠀⠀⠀⣤⣤⣤⣤⣤⣤⣤⣤⣤⠤⢄⡀⠀⠀⣿⣿⣿⣿⣿⣿⡆⠘⡄⠀⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀                                                               
+    |⠀⠀⠀⠀   ⠀⠀⠀⠀⠀⠀⠀⠈⠙⢿⣿⣿⣿⣿⣿⣿⣿⣦⡈⠒⢄⢸⣿⣿⣿⣿⣿⣿⡀⠱⠀⡇⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀                                                             
+    |⠀⠀⠀⠀   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠻⣿⣿⣿⣿⣿⣿⣿⣦⠀⠱⣿⣿⣿⣿⣿⣿⣇⠀⢃⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀                                                               
+    |⠀⠀⠀   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢿⣿⣿⣿⣿⣿⣿⣷⡄⣹⣿⣿⣿⣿⣿⣿⣶⣾⣿⣶⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀                                                               
+    |⠀⠀⠀⠀   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀                                                              
+    |⠀⠀⠀⠀   ⠀⠀⠀⠀⠀⠀⢀⣠⣴⣶⣿⣭⣍⡉⠙⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+    |⠀⠀   ⠀⠀⠀⠀⠀⢀⣠⣶⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+    |⠀⠀   ⠀⠀⠀⠀⠀⠉⠉⠛⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡷⢂⣓⣶⣶⣶⣶⣤⣤⣄⣀⠀⠀⠀⠀⠀⠀⠀⠀        
+    |⠀⠀⠀   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⢿⣿⣿⣿⠟⢀⣴⢿⣿⣿⣿⠟⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀  ⠀⠀  ⠀⠀      ⠀⠀     EXAMEN PHP POO
+    |⠀⠀⠀   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠤⠤⠤⠤⠙⣻⣿⣿⣿⣿⣿⣿⣾⣿⣿⡏⣠⠟⡉⣾⣿⣿⠋⡠⠊⣿⡟⣹⣿⢿⣿⣿⣿⠿⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀       ⠀⠀  ⠀⠀  ⠀⠀    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+    |⠀⠀⠀⠀   ⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣶⣤⣭⣤⣼⣿⢛⣿⣿⣿⣿⣻⣿⣿⠇⠐⢀⣿⣿⡷⠋⠀⢠⣿⣺⣿⣿⢺⣿⣋⣉⣉⣩⣴⣶⣤⣤⣄⠀⠀⠀⠀⠀⠀⠀⠀
+    |⠀⠀   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠛⠻⠿⣿⣿⣿⣇⢻⣿⣿⡿⠿⣿⣯⡀⠀⢸⣿⠋⢀⣠⣶⠿⠿⢿⡿⠈⣾⣿⣿⣿⣿⡿⠿⠛⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀    ⠀⠀  ⠀⠀    ⠀⠀    DEVOIR FAIT PAR 
+    |⠀⠀⠀   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠻⢧⡸⣿⣿⣿⠀⠃⠻⠟⢦⢾⢣⠶⠿⠏⠀⠰⠀⣼⡇⣸⣿⣿⠟⠉⠀⠀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   
+    |⠀⠀⠀   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⣾⣶⣽⣿⡟⠓⠒⠀⠀⡀⠀⠠⠤⠬⠉⠁⣰⣥⣾⣿⣿⣶⣶⣷⡶⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀  ⠀⠀  ⠀⠀  LORIS LAURENTI ET MAXIME BEERNAERT
+    |⠀⠀⠀⠀   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠉⠹⠟⣿⣿⡄⠀⠀⠠⡇⠀⠀⠀⠀⠀⢠⡟⠛⠛⠋⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+    |⠀⠀   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⠋⠹⣷⣄⠀⠐⣊⣀⠀⠀⢀⡴⠁⠣⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+    |⠀⠀   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣤⣀⠤⠊⢁⡸⠀⣆⠹⣿⣧⣀⠀⠀⡠⠖⡑⠁⠀⠀⠀⠑⢄⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+    |⠀   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣦⣶⣿⣿⣟⣁⣤⣾⠟⠁⢀⣿⣆⠹⡆⠻⣿⠉⢀⠜⡰⠀⠀⠈⠑⢦⡀⠈⢾⠑⡾⠲⣄⠀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+    |⠀   ⠀⠀⠀⠀⠀⠀⠀⣀⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠖⠒⠚⠛⠛⠢⠽⢄⣘⣤⡎⠠⠿⠂⠀⠠⠴⠶⢉⡭⠃⢸⠃⠀⣿⣿⣿⠡⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+    |   ⠀⠀⠀⠀⠀⡤⠶⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣋⠁⠀⠀⠀⠀⠀⢹⡇⠀⠀⠀⠀⠒⠢⣤⠔⠁⠀⢀⡏⠀⠀⢸⣿⣿⠀⢻⡟⠑⠢⢄⡀⠀⠀⠀⠀                       press enter_
+    |   ⠀⠀⠀⠀⢸⠀⠀⠀⡀⠉⠛⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⣀⣀⡀⠀⢸⣷⡀⣀⣀⡠⠔⠊⠀⠀⢀⣠⡞⠀⠀⠀⢸⣿⡿⠀⠘⠀⠀⠀⠀⠈⠑⢤⠀⠀
+    |⠀⠀   ⢀⣴⣿⡀⠀⠀⡇⠀⠀⠀⠈⣿⣿⣿⣿⣿⣿⣿⣿⣝⡛⠿⢿⣷⣦⣄⡀⠈⠉⠉⠁⠀⠀⠀⢀⣠⣴⣾⣿⡿⠁⠀⠀⠀⢸⡿⠁⠀⠀⠀⠀⠀⠀⠀⠀⡜⠀⠀
+    |   ⠀⢀⣾⣿⣿⡇⠀⢰⣷⠀⢀⠀⠀⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⣭⣍⣉⣉⠀⢀⣀⣤⣶⣾⣿⣿⣿⢿⠿⠁⠀⠀⠀⠀⠘⠀⠀⠀⠀⠀⠀⠀⠀⠀⡰⠉⢦⠀
+    |   ⢀⣼⣿⣿⡿⢱⠀⢸⣿⡀⢸⣧⡀⠀⢿⣿⣿⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡭⠖⠁⠀⡠⠂⠀⠀⠀⠀⠀⠀⠀⠀⢠⠀⠀⠀⢠⠃⠀⠈⣀
+    |   ⢸⣿⣿⣿⡇⠀⢧⢸⣿⣇⢸⣿⣷⡀⠈⣿⣿⣇⠈⠛⢿⣿⣿⣿⣿⣿⣿⠿⠿⠿⠿⠿⠿⠟⡻⠟⠉⠀⠀⡠⠊⠀⢠⠀⠀⠀⠀⠀⠀⠀⠀⣾⡄⠀⢠⣿⠔⠁⠀⢸
+    |   ⠈⣿⣿⣿⣷⡀⠀⢻⣿⣿⡜⣿⣿⣷⡀⠈⢿⣿⡄⠀⠀⠈⠛⠿⣿⣿⣿⣷⣶⣶⣶⡶⠖⠉⠀⣀⣤⡶⠋⠀⣠⣶⡏⠀⠀⠀⠀⠀⠀⠀⢰⣿⣧⣶⣿⣿⠖⡠⠖⠁
+    |   ⠀⣿⣿⣷⣌⡛⠶⣼⣿⣿⣷⣿⣿⣿⣿⡄⠈⢻⣷⠀⣄⡀⠀⠀⠀⠈⠉⠛⠛⠛⠁⣀⣤⣶⣾⠟⠋⠀⣠⣾⣿⡟⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⠷⠊⠀⢰⠀
+    |   ⢰⣿⣿⠀⠈⢉⡶⢿⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀⠙⢇⠈⢿⣶⣦⣤⣀⣀⣠⣤⣶⣿⣿⡿⠛⠁⢀⣤⣾⣿⣿⡿⠁⠀⠀⠀⠀⠀⠀⠀⣸⣿⡿⠿⠋⠙⠒⠄⠀⠉⡄
+    |   ⣿⣿⡏⠀⠀⠁⠀⠀⠀⠉⠉⠙⢻⣿⣿⣿⣿⣷⡀⠀⠀⠀⠻⣿⣿⣿⣿⣿⠿⠿⠛⠁⠀⣀⣴⣿⣿⣿⣿⠟⠀⠀⠀⠀⠀⠀⠀⠀⢠⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠰
+    |
+    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾";
+        echo $string;
+        readline();
+        // $this->fightScreen();
+}
+function fightScreen($text){
+        popen("cls","w");
+        $string = "    _______________________________________________________________________________________________________________________________________________________
+     
+    #########################################(                                                                            ,#%          ,%#%                                  
+                                           ,/&%                                                                      *((((//(#@      *,#%**%                                \n             ";   
+        $string .= $this->game->getCurrentEnemy()->getName();
+        for($i=0;$i<=(30-(strlen($this->game->getCurrentEnemy()->getName())));$i++){
+            $string .= " ";
+        }
+        $string .= ",&#                                                                    .#///////((#(&    .%/*,,*#                                
+                                            ,&#                                                                    .(/////((%#((&    .#,*#                                   
+                HP : ";
+        $string .= $this->game->getCurrentEnemy()->getHp();
+        for($i=0;$i<=(22-(strlen($this->game->getCurrentEnemy()->getHp())));$i++){
+            $string .= " ";
+        }
+        $string .= ".&#                                                                    .(/#**/& #((@  .,./  ,                                    
+                                            .&#                                                                      *,,((/*%#/,,,  ,**%*                                    
+                Mana : ";
+    
+        $string .= $this->game->getCurrentEnemy()->getMana();
+        for($i=0;$i<=(19-(strlen($this->game->getCurrentEnemy()->getMana())));$i++){
+            $string .= " ";
+        }
+        $string .= ".#.&#                                                                    .*/, &&/*#,  ,/%,(                                        
+                                          . */,&#                                                           /,#./(   (*.,  .      &                                            
+                                          .,/&###/                                                        .,*,*&,  *,.,.        .&                                            
+    ##############################################(                                                      .*/#@*,.*,.*@*        .&                                            
+    #################################################(                                                        .#,//&  .,        &                                            
+                                                                                                                     .,.   ,,,  **                                          
+                                                                                            ,.,    ,    .,,,,,  ,,,,#///#(*/**/(&#,,  ,,,,,    .,  . ,                      
+                                                                                . ,.,.,,  ,,,    ,  ,            .%(////%/,@(///(@            ,,  ,    *,,  
+                                                                          .,,,.,,,                              .(/(/*#@   .(%*/(/@              .          
+                                                                   ,,,,                      .                 *&&(##@      @(#(#(&                         
+                         .@%#@@@.#,                            .,,,,,        ,  .,  .,              .,  ,  ,,  ,%(((&,      .@(((%#  ,,  ,.,,              
+                      .&&&####&&#&&%#@                         .,,,,,,                                          .&&&%##,      .%##%%&/                                      
+                    .(#&#((#(##(((#######&%/                    .,,,,,,  .,                    ,  .,           ((*#%*,         /#%**(           ,  .,                      
+                   /&%%###########%%,,,./%*,                       .,,,,,,,,,.,,  .,        .,  .,                                                ,  .,      
+                   .@@%###########%,    .,                                 .,,,,,,,,,,,.,,,.,,,      .,    ,,      ,,  ,,      ,,  ,,      ,    .,      .,,
+                   @&#########%@/%#  , @//                                         .,,,,,,,,,,,,,,,,,,,,  ,,,,.,,,,,,,,,,,,,,,,,,,,,,.,,,,  ,,,,,,,,,,,,,,,      
+                   .@@%#####%%&*%@%%    .,,                                                        ,,,,,,,,,,,,,,,,(#%&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+                   .*%@&###@@%&*#@@%     ,,                                                                       /%%                                                 
+                       %@@@@@@@@%%%,    *                                                                          (&.                   
+                       .@@@@@@@@(*/%@%@##                                                                           (&.      ";
+    
+        $string .= $this->game->getPlayer()->getName() ."\n                         .%////(/**@,,,,                                                                            .(&.            
+                   .((%&%***/**/(/**##%%/,                                                                          .(&.        HP : " . $this->game->getPlayer()->getHp() ."
+                 .@,**,(%%%%%%%%%%%%%/      *                                                                       .(&.         
+               . (*/#(*%%%%%%%%%%%%./,/,    . @                                                                     .(&.        Mana : " . $this->game->getPlayer()->getMana() ."
+               .#/**/(*%%%%%%%%%%%%./,,%%%(%*,*(                                                                    .(&.                                                 
+             .*(/////((%%%%%%%%%%%%%*/*/#*(%(%,*#                                                                   (&.                                                 
+              .(*///// /&%%%%%%%%%%%%%%/*#@#,,,,    &*                                                             *(#&*                                                 
+            ,@**/////   (%%%%%%%%%%%%%%%%%%&&/,,,,    #/                                                     .(###########**,#*#//,*########################
+         ,%/(//***&/   ,%%%%%%%%%%%%%%%%%%#,*%*,,,,,/*(                                                /##############,,,#*(/*((###(((((((((((((((((((((((((
+    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                                            \n                                  ";
+        $string .= $text[0];
+        for($i=0;$i<=(68-(strlen($text[0])));$i++){
+            $string .= " ";
+        }
+        
+        for($j=0; $j<(count($text)-1);$j++){
+            $string .= "                                                                  
+                                                                                                             
+                                       ";
+            $string .= ($j+1) . ". " . $text[$j+1];
+            for($i=0;$i<=(60-(strlen($text[$j+1])));$i++){
+                $string .= " ";
+            }
+            
+        }
+        $string .= "     
+                                                                                                            ";
+
+    echo $string;
+}
+function fightTransition(){
+    
+}
+}
+
+class Power {
+    private $title;
+    private $description;
+    private $ingameDescription;
+    private $manaCost;
+
+    public function __construct($t,$d, $igD,$m){
+        $this->title = $t;
+        $this->description = $d;
+        $this->ingameDescription = $igD;
+        $this->manaCost = $m;
+    }
+
+    public function getTitle(){
+        return $this->title;
+    }
+    public function getDescription(){
+        return $this->description;
+    }
+    public function getIngameDescription(){
+        return $this->ingameDescription;
+    }
+    public function getManaCost(){
+        return $this->manaCost;
+    }
+
+    public function setTitle($t){
+        $this->title = $t;
+    }
+    public function setDescription($d){
+        $this->description = $d;
+    }
+    public function setIngameDescription($igD){
+        $this->ingameDescription = $igD;
+    }
+    public function setManaCost($m){
+        $this->manaCost = $m;
+    }
+}
+
 class Game {
     private $player;
-    private $dragonBallQuestManager;
-    private $currentEnemy;
-    
+    private $dragonBallQuestManager ;
+    private $currentEnemy = null;
+    private $graphicalManager;
+    private $collectionPower = [];
+
     public function __construct(){
         $this->dragonBallQuestManager = new DragonBallQuestManager;
+        $this->graphicalManager = new GraphicalManager($this);
+        $this->graphicalManager->hideCursor();
         $this->launchGame();
+    }
+
+    public function getPlayer(){
+        return $this->player;
+    }
+    public function getCurrentEnemy(){
+        return $this->currentEnemy;
     }
     
     public function stringBuffer($string){
@@ -225,7 +426,10 @@ class Game {
     public function launchGame(){
         $this->createQuests();
         $this->createEnemies();
-        
+        $this->createPower();
+
+        $this->graphicalManager->gameStartScreen();
+
         //choose between start new game, launch a save, and close game
         echo "                                               ";
         $string = "Welcome ingame\n"; // text to change
@@ -242,13 +446,9 @@ class Game {
                 return $this->quitGame();
                 break;
         }
-    }
-
-
-    
+    }    
 
     // ----- LAUNCH A NEW FILE GAME
-
     public function createQuests(){
         $title = [
             "The Mystical Adventure of the Dragon Ball of Earth",
@@ -298,20 +498,6 @@ class Game {
         ];
         return $enemies;
     }
-
-    public function createEnigmas(){
-        $enigmas = [
-            ["",3],
-            ["",3],
-            ["",3],
-            ["",3],
-            ["",3],
-            ["",3],
-            ["",3],
-            ["",3]
-        ];
-        return $enigmas;
-    }
     
     // CREATE NEW PLAYER - only available at game start
     public function createPlayer(){
@@ -326,12 +512,13 @@ class Game {
                 echo "\n                                          Your name cannot be registered in our Hero, please retry.\n";
             }else{
                 $this->player = new Hero ($name, 12, 15);
+                $this->player->addPower($this->collectionPower[0]);
                 $created = true;
             }
         } while ($created == false);
         $string = "Tu t'appelles " . $this->player->getName() . " et tu aura donc " . $this->player->getDamage() . " de dégâts, tu aura " . $this->player->getMana() . " de mana, et tu aura " . $this->player->getHp() . " de vie.\n";
         $this->stringBuffer($string);
-        readline("\nPress enter to continue : ");
+        readline("\nPress enter to continue_");
         popen("cls", "w");
         $this->mainMenu();
     }
@@ -341,6 +528,7 @@ class Game {
         popen("cls", "w");
         echo "\n                                               ";
         $string = "Welcome in game " . $this->player->getName(); // text to change - main menu of actions
+        $this->checkEnd();
         // Fight for the DragonBall
         // Get your Stats
         // Save your Game
@@ -382,7 +570,7 @@ class Game {
         echo "\n                                               ";
         $string = $quest->getTitle() . "\n\n" . $quest->getDescription();
         $this->stringBuffer($string);
-        readline("\nPress enter to continue : ");
+        readline("\nPress enter to continue_");
         popen("cls", "w");
 
         $this->resetStats();
@@ -415,17 +603,28 @@ class Game {
         echo "\n                                               ";
         $string = "You ded bro LOSER";
         $this->stringBuffer($string);
-        readline("\nPress enter to continue : ");
+        readline("\nPress enter to continue_");
         $this->resetStats();
         return $this->mainMenu();
     }
 
     public function playerWinQuest(){
-        echo "\n                                               ";
-        $string = "You earned this DragonBall !\n*you got DragonBall " . ($this->player->getDragonBall()+1);
-        $this->player->setDragonBall($this->player->getDragonBall()+1);
+        echo "\n                                                            ";
+        $string = "You earned this DragonBall !";
         $this->stringBuffer($string);
-        readline("\nPress enter to continue : ");
+        echo "\n\n                                                               ";
+        $string = "*you got DragonBall " . ($this->player->getDragonBall()+1);
+        $this->stringBuffer($string);
+
+        $this->player->setDragonBall($this->player->getDragonBall()+1);
+        if( $this->player->getDragonBall() < count($this->collectionPower)){
+            echo "\n\n                                           ";
+            $string = "You also discovered a new ability : " . $this->collectionPower[$this->player->getDragonBall()]->getTitle() . " ! \n";
+            $this->stringBuffer($string);
+            $this->player->addPower($this->collectionPower[$this->player->getDragonBall()]);
+        }
+        echo "\n                                                               ";
+        readline("Press enter to continue_");
         $this->resetStats();
         return $this->mainMenu();
     }
@@ -441,10 +640,12 @@ class Game {
     }
 
     public function fightMenu(){
-        $this->currentEnemy->setIsDefending(false);
+        $this->player->setIsDefending(false);
         
-        $string = "\n\nVotre vie : " . $this->player->getHp() . "\nVie de l'ennemi : " . $this->currentEnemy->getHp() ."\nVoulez vous\n\n1-attaquer\n2-se défendre\n3-utiliser votre super attaque\n";
-        $this->stringBuffer($string);
+        $text = ["Your Turn ! What will you do ?", "Attack ! ( " . $this->player->getDamage() ." damage)" , "Defend ! (get half-damage)", "Use a Special Ability !"];
+        $this->graphicalManager->fightScreen($text);
+
+
         $choice = readline(" ");
         switch ($choice) {
             case 1:
@@ -464,42 +665,96 @@ class Game {
 
     public function playerAttack(){
         $rand = rand(1, 10);
-
+        $string = "";
         if($rand >= 2){
             $damage = $this->player->getDamage();
         } else{
-            echo "you missed the attack and did only half damage";
+            $string .= "You missed your attack and did only half damage ! ";
             $damage = floor($this->player->getDamage() / 2);
             // $this->player->setHP() --;
         }
-        if($this->currentEnemy->getIsDefending()== true){
+        if($this->player->getMolecularAttack()==true){
+            $damage *= 2;
+        }
+        if($this->currentEnemy->getIsDefending() == true){
             $this->currentEnemy->setHp($this->currentEnemy->getHp() - floor($damage/2) );
-            $string = "\nYou did" . $damage ." damage !\n";
+            $string .= "You did " . floor($damage/2) ." damage !";
         }else{
             $this->currentEnemy->setHp($this->currentEnemy->getHp() - $damage );
-            $string = "\nYou did" . $damage ." damage !\n";
+            $string .= "You did " . $damage ." damage !";
             $this->player->setMana($this->player->getMana() + 3);
         }
-        
-        $this->stringBuffer($string);
-        readline("\nPress enter to continue : ");
+        $text = [$string];
+        $this->graphicalManager->fightScreen($text);
+        readline();
+        $this->player->setMolecularAttack(false);
         return $this->enemyTurn();
     }
 
     public function playerDefend(){
-        $string = "\nYou chose to defend !\n";
-        $this->stringBuffer($string);
-
         $this->player->setIsDefending(true);
-        readline("\nPress enter to continue : ");
+        $text = ["You chose to defend !"];
+        $this->graphicalManager->fightScreen($text);
+        readline();
         return $this->enemyTurn();
     }
 
-    public function playerPower(){
-        $string = "\nYou chose to use your power !\n";
-        $this->stringBuffer($string);
-        readline("\nPress enter to continue : ");
+    public function playerPower(){  
+        $text = ["You chose to use your powers ! Current Mana : " . $this->player->getMana()];
+        foreach($this->player->getPowerList() as $key => $power){
+            $string = $power->getTitle() . " : " . $power->getIngameDescription() . " - " . $power->getManaCost() . " Mana Cost";
+            array_push($text, $string);
+        }
+        $this->graphicalManager->fightScreen($text);
+        $index = readline();
 
+        if(is_int($index) && isset($this->player->getPowerList()[$index-1]) && $this->player->getMana()>=$this->player->getPowerList()[$index-1]->getManaCost()){
+            switch($this->player->getPowerList()[$index-1]->getTitle()){
+                case "Ki Absorption" :
+                    $this->currentEnemy->setHp($this->currentEnemy->getHp() - 10);
+                    $this->player->setHp($this->player->getHp() + 10);
+                    $text = "You did 10 damage and gained 10 HP !";
+                    break;
+                case "Temporal Manipulation" :
+                    $text = [" "];
+                    if($this->player->getMolecularAttack()==true){
+                        $damage = $this->player->getDamage()*2;
+                    }else{
+                        $damage = $this->player->getDamage();
+                    }
+                    for($i=0;$i<=1;$i++){
+                        if($this->currentEnemy->getIsDefending()== true){
+                            $this->currentEnemy->setHp($this->currentEnemy->getHp() - floor($damage/2) );
+                            $string = "You did" . $damage ." damage !";
+                        }else{
+                            $this->currentEnemy->setHp($this->currentEnemy->getHp() - $damage );
+                            $string = "You did" . $damage ." damage !";
+                            $this->player->setMana($this->player->getMana() + 3);
+                        }
+                        array_push($text, $string);
+                        $this->player->setMolecularAttack(false);
+                    }
+                    break;
+                case "Molecular Control" :
+                    $text = "You prepare yourself for your next attack !";
+                    $this->player->setMolecularAttack(true);
+                    break;
+                case "Matter Absorption" :
+                    $text = "You healed yourself 30 HP !";
+                    $this->player->setHp($this->player->getHp() + 30);
+                    break;
+                case "Kamehameha" :
+                    $this->currentEnemy->setHp($this->currentEnemy->getHp() - 50);
+                    $text = "You dealt an amazing 50 damage !";
+                    break;
+            }
+            $this->graphicalManager->fightScreen($string);
+
+        }elseif($index == ""){
+            return $this->fightMenu();
+        }else{
+            return $this->playerPower();
+        }
         return $this->enemyTurn();
     }
 
@@ -508,12 +763,11 @@ class Game {
             return $this->checkFight();
         }
         
-        $string = "\nIt's your enemy's turn !\n";
-        $this->stringBuffer($string);
-
-        $this->currentEnemy->setIsDefending(false);
+        $text = ["It is ".$this->currentEnemy->getName()."'s turn !"];
+        $this->graphicalManager->fightScreen($text);
+        readline();
         
-        readline("\nPress enter to continue : ");
+        $this->currentEnemy->setIsDefending(false);
         
         $choice = rand(1,10);
         if($this->currentEnemy->getMana() > 49 && $choice>=8 ){
@@ -528,44 +782,45 @@ class Game {
     public function enemyAttack(){
         if($this->player->getIsDefending()== true){
             $this->player->setHp($this->player->getHp() - floor($this->currentEnemy->getDamage()/2 ) );
-            $string = "\nYou took" . floor($this->currentEnemy->getDamage()/2 ) ." damage !\n";
+            $string = "\nYou took " . floor($this->currentEnemy->getDamage()/2 ) ." damage !\n";
         }else{
             $this->player->setHp($this->player->getHp() - $this->currentEnemy->getDamage() );
-            $string = "\nYou took" . $this->currentEnemy->getDamage() ." damage !\n";
+            $string = "\nYou took " . $this->currentEnemy->getDamage() ." damage !\n";
             $this->player->setMana($this->player->getMana() + 3);
         }
-        $this->stringBuffer($string);
-        $string = "You won !";
-        readline("\nPress enter to continue : ");
+        $text = [$string];
+        $this->graphicalManager->fightScreen($text);
+        readline();
+        
         $this->checkFight();
     }
 
     public function enemyDefend(){
         $this->currentEnemy->setIsDefending(true);
-        $string = "\nThe enemy has chosen to defend himself !\n";
-        $this->stringBuffer($string);
-        readline("\nPress enter to continue : ");
+        $text = [$this->currentEnemy->getName() . " has chosen to defend himself !"];
+        $this->graphicalManager->fightScreen($text);
+        readline();
         $this->checkFight();
     }
 
     public function enemyPower(){
-        $string = "\nThe enemy has chosen to use his power !\n";
-        $this->stringBuffer($string);
-        readline("\nPress enter to continue : ");
+        $text = [$this->currentEnemy->getName() . " has chosen to use his powers !", "Looks like he acted like a Magicarp : his special power do nothing !", "(Enemies powers not implemented to get to the endgame faster)"];
+        $this->graphicalManager->fightScreen($text);
+        readline("\nPress enter to continue_");
         $this->checkFight();
     }
 
     public function checkFight(){
         if($this->currentEnemy->getHp()<=0){
-            $string = "You won !";
-            $this->stringBuffer($string);
-            readline("\nPress enter to continue : ");
+            $text = ["You Won ! "];
+            $this->graphicalManager->fightScreen($text);
+            readline();
             return false;
         }
         if($this->player->getHp()<=0){
-            $string = "You lost !";
-            $this->stringBuffer($string);
-            readline("\nPress enter to continue : ");
+            $text = ["You Lost ! "];
+            $this->graphicalManager->fightScreen($text);
+            readline();
             return $this->mainMenu();
         }
         return $this->fightMenu();
@@ -610,9 +865,23 @@ class Game {
     }
 
     public function doEnigma($question){
-        $question->getReponses()[i];
+        //TODO
+        // $question->getReponses()[i];
     }
 
+    public function createPower(){
+        $powerList = [
+            ["Ki Absorption","Your character can absorb and manipulate the energy of other living beings, enhancing their own power and weakening their opponents.","Steal life from your enemy.",20],
+            ["Temporal Manipulation","Ability to control and manipulate time, enabling your character to speed up, for a short period.", "You attack twice.",30],
+            ["Molecular Control","Capability to manipulate the structure of matter at the molecular level, allowing your character to living beings at will.", "More damage next attack.",20],
+            ["Matter Absorption","Ability to absorb and assimilate matter, granting your character temporary invulnerability and the capacity to grow stronger with each absorbed substance.", "Heal some HP",30],
+            ["Kamehameha","The Kamehameha is a signature Dragon Ball energy attack where the user concentrates their inner energy into their cupped hands before releasing a powerful, blue energy wave with devastating force.", "Do massive damage.",60]
+        ];
+        for($i=0;$i<(count($powerList));$i++){
+            $power = new Power ($powerList[$i][0],$powerList[$i][1],$powerList[$i][2],$powerList[$i][3]);
+            array_push($this->collectionPower, $power);
+        }
+    }
 
     // ----- STATS
     public function getStats(){
@@ -622,6 +891,23 @@ class Game {
         readline("\nPress enter to return on main : ");
         popen("cls", "w");
         $this->mainMenu();
+    }
+
+    public function checkEnd(){
+        if( $this->player->getDragonBall() == 7 ){
+            popen("cls", "w");
+            echo "\n                                          ";
+            $string = $this->player->getName().", you have finished all the quests...";
+            $this->stringBuffer($string);
+            echo "\n                                      ";
+            $string = "All the Dragon Balls are in your hands ( ( ͡❛ ͜ʖ ͡❛) ) , you gained ultimate power in this universe."
+            $this->stringBuffer($string);
+            echo "\n                                          ";
+            $string = "Hopefully, you will use it with care... Goodbye !"
+            $this->stringBuffer($string);
+            sleep(20);
+            return $this->launchGame(); 
+        }
     }
 
     // ----- LEAVE GAME
