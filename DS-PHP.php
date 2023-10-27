@@ -1,6 +1,7 @@
 <?php
 // creat a class personnage with attribut
 class Personnage {
+    // we use protected for better accessibility for children
     protected $name;
     protected $damage;
     protected $mana = 0;
@@ -17,6 +18,7 @@ class Personnage {
         $this->maxHealth = $H;
     }
 
+    // creat a getter and setter
     public function getName(){
         return $this->name;
     }
@@ -617,6 +619,10 @@ class Game {
             echo $saveName . " = " . $nameCheck ." ?";
             if ($nameCheck == $saveName){
                 echo "\n\n\nThe SaveFile name is already taken, please choose another name.\n";
+                return $this->saveGame();
+            }
+            if($name == ""){
+                echo "\n\n\nThe SaveFile name is empty, please choose a name.\n";
                 return $this->saveGame();
             }
         }
