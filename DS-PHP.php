@@ -64,7 +64,7 @@ class Personnage {
 
 class Hero extends Personnage{
     private $level = 0;
-    private $xp =0 ;
+    private $xp = 0 ;
     private $dragonBall = 0;
     private $powerList = [];
 
@@ -248,7 +248,7 @@ function gameStartScreen(){
     |⠀⠀   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣤⣀⠤⠊⢁⡸⠀⣆⠹⣿⣧⣀⠀⠀⡠⠖⡑⠁⠀⠀⠀⠑⢄⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
     |⠀   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣦⣶⣿⣿⣟⣁⣤⣾⠟⠁⢀⣿⣆⠹⡆⠻⣿⠉⢀⠜⡰⠀⠀⠈⠑⢦⡀⠈⢾⠑⡾⠲⣄⠀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
     |⠀   ⠀⠀⠀⠀⠀⠀⠀⣀⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠖⠒⠚⠛⠛⠢⠽⢄⣘⣤⡎⠠⠿⠂⠀⠠⠴⠶⢉⡭⠃⢸⠃⠀⣿⣿⣿⠡⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-    |   ⠀⠀⠀⠀⠀⡤⠶⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣋⠁⠀⠀⠀⠀⠀⢹⡇⠀⠀⠀⠀⠒⠢⣤⠔⠁⠀⢀⡏⠀⠀⢸⣿⣿⠀⢻⡟⠑⠢⢄⡀⠀⠀⠀⠀                       press enter_
+    |   ⠀⠀⠀⠀⠀⡤⠶⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣋⠁⠀⠀⠀⠀⠀⢹⡇⠀⠀⠀⠀⠒⠢⣤⠔⠁⠀⢀⡏⠀⠀⢸⣿⣿⠀⢻⡟⠑⠢⢄⡀⠀⠀⠀⠀                      press enter_
     |   ⠀⠀⠀⠀⢸⠀⠀⠀⡀⠉⠛⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⣀⣀⡀⠀⢸⣷⡀⣀⣀⡠⠔⠊⠀⠀⢀⣠⡞⠀⠀⠀⢸⣿⡿⠀⠘⠀⠀⠀⠀⠈⠑⢤⠀⠀
     |⠀⠀   ⢀⣴⣿⡀⠀⠀⡇⠀⠀⠀⠈⣿⣿⣿⣿⣿⣿⣿⣿⣝⡛⠿⢿⣷⣦⣄⡀⠈⠉⠉⠁⠀⠀⠀⢀⣠⣴⣾⣿⡿⠁⠀⠀⠀⢸⡿⠁⠀⠀⠀⠀⠀⠀⠀⠀⡜⠀⠀
     |   ⠀⢀⣾⣿⣿⡇⠀⢰⣷⠀⢀⠀⠀⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⣭⣍⣉⣉⠀⢀⣀⣤⣶⣾⣿⣿⣿⢿⠿⠁⠀⠀⠀⠀⠘⠀⠀⠀⠀⠀⠀⠀⠀⠀⡰⠉⢦⠀
@@ -409,13 +409,13 @@ class Game {
         $buffer = str_repeat("", 1); // fill the buffer
 
         $len = strlen($string);
-        $sleep = 0.0005; // sleep between output chars
+        $sleep = 1; // sleep between output chars
 
         for($i=0; $i < $len; $i++) {
             echo $buffer . $string[$i];
             ob_flush();
             flush();
-            usleep($sleep * 1000000);
+            usleep($sleep);
         }
         ob_end_clean();
     }
@@ -428,10 +428,12 @@ class Game {
         $this->graphicalManager->gameStartScreen();
 
         //choose between start new game, launch a save, and close game
-        echo "                                               ";
-        $string = "Welcome ingame\n"; // text to change
+        popen("cls","w");
+        echo "\n\n\n\n\n                                                                          ";
+        $string = "Welcome ingame\n"; 
         $this->stringBuffer($string);
-        $choice = readline("                                                                          | ");
+        echo "\n\n\n\n\n                                                          1. Create a new Hero to get the 7 Dragon Balls\n\n\n\n                                                                          2. Load a save\n\n\n\n                                                                           3. Quit Game\n\n\n\n";
+        $choice = readline("\n\n                                                                               ");
         switch($choice){
             case 1 : 
                 return $this->createPlayer();
@@ -498,24 +500,44 @@ class Game {
     
     // CREATE NEW PLAYER - only available at game start
     public function createPlayer(){
-        echo "\n                                               ";
-        $string = "BIENVENUE! Tu es mort et dans ma grande bontée j'ai décidé de te réincarner...\n";
+        popen("cls", "w");
+        echo "\n\n\n                                                                         ";
+        $string = "Character Creation : \n\n\n";
+        $this->stringBuffer($string);
+
+        echo "\n\n\n\n\n                                                      ";
+        $string = "You are a resilient Saiyan warrior with a mysterious past,\n";
         $this->stringBuffer($string);
         
+        echo "\n\n\n                                                      ";
+        $string = "wielding untapped potential and a relentless determination\n";
+        $this->stringBuffer($string);
+         
+        echo "\n\n\n                                        ";
+        $string = "to uncover the secrets of his lineage while mastering the legendary art of Ki manipulation\n";
+        $this->stringBuffer($string);
+
         $created = false;
         do{
-            $name = (string)readline("                                                                          | ");
+            echo "\n\n\n\n\n                                                                        ";
+            $string = "Enter your name, Hero :\n";
+            $this->stringBuffer($string);
+
+            echo "\n\n\n                                                                                 ";
+            $name = (string)readline();
             if(strlen($name)==0){
-                echo "\n                                          Your name cannot be registered in our Hero, please retry.\n";
+                echo "\n                                                    Your name cannot be registered in our Hero list, please retry.\n";
             }else{
                 $this->player = new Hero ($name, 12, 15);
                 $this->player->addPower($this->collectionPower[0]);
                 $created = true;
             }
         } while ($created == false);
-        $string = "Tu t'appelles " . $this->player->getName() . " et tu aura donc " . $this->player->getDamage() . " de dégâts, tu aura " . $this->player->getMana() . " de mana, et tu aura " . $this->player->getHp() . " de vie.\n";
+        popen("cls", "w");
+        echo "\n\n\n\n\n\n\n\n\n                                                      ";
+        $string = "Your name is " . $this->player->getName() . ", you deal " . $this->player->getDamage() . " Damage and have " . $this->player->getHp() . " Health Points.\n";
         $this->stringBuffer($string);
-        readline("\nPress enter to continue_");
+        readline("\n\n\n\n                                                                          Press enter to continue_");
         popen("cls", "w");
         $this->mainMenu();
     }
@@ -523,15 +545,16 @@ class Game {
     // ----- PLAYER MAIN MENU - access everything
     public function mainMenu(){
         popen("cls", "w");
-        echo "\n                                               ";
-        $string = "Welcome in game " . $this->player->getName(); // text to change - main menu of actions
-        $this->checkEnd();
-        // Fight for the DragonBall
-        // Get your Stats
-        // Save your Game
-        // Give up search (quit)
+        echo "\n\n\n\n\n\n\n                                                                      ";
+        $string = "Welcome in game, " . $this->player->getName();
         $this->stringBuffer($string);
-        $choice = (string)readline("\n                                                                          | ");
+        
+        echo "\n\n\n\n\n\n\n                                                                  1. Search for the Dragon Balls\n\n\n\n                                                                       2. Watch your stats\n\n\n\n                                                                        3. Save your game\n\n\n\n                                                                        4. Visit Sensei\n\n\n\n                                                                          5. Quit Game";
+        
+        $this->checkEnd();
+
+        echo "\n\n\n\n\n\n\n                                                                                 ";
+        $choice = (string)readline();
         switch ($choice) {
             case 1 : 
                 return $this->searchDragonBall();
@@ -542,7 +565,10 @@ class Game {
             case 3 : 
                 return $this->saveGame();
                 break;
-            case 4 : 
+                case 4:
+                    return $this->SenseiShop();
+                    break;
+            case 5 : 
                 return $this->quitGame();
                 break;
             default :
@@ -551,23 +577,77 @@ class Game {
         }
     }
 
+
     // ----- SAVE HANDLING
     public function loadGame(){
+        // choose a savefile to load
+        echo "See accessible SaveFiles :\n";
+
+        //we show the list of savefiles available
+        $saveLines = file("savenames.txt");
+        for($index=0;$index<count($saveLines);$index++) {
+            echo "  ".($index+1).". ".$saveLines[$index];
+        }
         
+        // we read the infos
+        $choice = readline("\nChoose the SaveFile to load : ");
+        if($choice>0 && $choice <=count($saveLines)) {
+            $name = $saveLines[$choice-1].".txt";
+            $name = str_replace(array("\r", "\n"), '', $name);
+            $objData = file($name);
+            // we get the player info on the next line
+            $charData = unserialize($objData[0]);
+
+            //and start the game with the infos we got
+            $this->player = $charData;
+            return $this->mainMenu();
+        }elseif($choice==""){
+            return $this->launchGame();
+        }else{
+            echo "\nLe name de save n'est pas valide. Recommencez.\n\n\n\n";
+            return $this->loadGame();
+        }
     }
     public function saveGame(){
+        // offer to name save
+        $name = (string)readline("Name the SaveFile : ");
+        $nameCheck = $name."\n";
+        $saveLines = file("savenames.txt");
+        foreach($saveLines as $saveName){
+            echo $saveName . " = " . $nameCheck ." ?";
+            if ($nameCheck == $saveName){
+                echo "\n\n\nThe SaveFile name is already taken, please choose another name.\n";
+                return $this->saveGame();
+            }
+        }
+        // sleep(10000);
+
+        //serialize the player infos
+        $charData = serialize($this->player);
+        //write the infos on a named save (above)
+        $fp = fopen($name.".txt", "w");
+        fwrite($fp, $charData);
+        fclose($fp);
         
+        // we write the named file in another file for easy access to a lot of customly named savefiles
+        $saveNames = fopen("savenames.txt","a");
+        fwrite($saveNames, $name);
+        fwrite($saveNames, "\n");
+        fclose($saveNames);
+        return $this->mainMenu();
     }
 
 
 
     // ----- FIGHT 
     public function searchDragonBall(){
+        popen("cls", "w");
+
         $quest = $this->dragonBallQuestManager->getCollectionQuest()[$this->player->getDragonBall()];
-        echo "\n                                               ";
-        $string = $quest->getTitle() . "\n\n" . $quest->getDescription();
+        echo "\n\n\n\n\n                                                        ";
+        $string = $quest->getTitle() . "\n\n\n\n\n" . $quest->getDescription();
         $this->stringBuffer($string);
-        readline("\nPress enter to continue_");
+        readline("\n\n\n\n                                                                                                                  Press enter to continue_");
 
         $this->resetStats();
         $this->currentEnemy = $quest->getEnemy1();
@@ -591,9 +671,7 @@ class Game {
         popen("cls","w");
         $string = "\n\n\n\n\n\n                                                                               A fight starts !";
         $this->stringBuffer($string);
-        sleep(1.5);
-        // sleep
-        // écran qui fade in
+        usleep(1500000);
         $this->fightMenu();
     }
 
@@ -680,7 +758,8 @@ class Game {
         }else{
             $this->currentEnemy->setHp($this->currentEnemy->getHp() - $damage );
             $string .= "You did " . $damage ." damage !";
-            $this->player->setMana($this->player->getMana() + 3);
+            $this->player->setMana($this->player->getMana() + 10);
+            $this->currentEnemy->setMana($this->currentEnemy->getMana() + 10);
         }
         $text = [$string];
         $this->graphicalManager->fightScreen($text);
@@ -784,7 +863,8 @@ class Game {
         }else{
             $this->player->setHp($this->player->getHp() - $this->currentEnemy->getDamage() );
             $string = "\nYou took " . $this->currentEnemy->getDamage() ." damage !\n";
-            $this->player->setMana($this->player->getMana() + 3);
+            $this->player->setMana($this->player->getMana() + 10);
+            $this->currentEnemy->setMana($this->currentEnemy->getMana() + 10);
         }
         $text = [$string];
         $this->graphicalManager->fightScreen($text);
@@ -808,9 +888,11 @@ class Game {
         $this->checkFight();
     }
 
+    // This function is used to check whether the enemy is dead or not, in order to continue the game and redirect the player to another function.
     public function checkFight(){
         if($this->currentEnemy->getHp()<=0){
-            $text = ["You Won ! "];
+            $xp = $this->currentEnemy->getMaxHealth() * 2;
+            $text = ["You Won ! + " .$xp . "XP" ];
             $this->graphicalManager->fightScreen($text);
             readline();
             return false;
@@ -824,6 +906,7 @@ class Game {
         return $this->fightMenu();
     }
 
+    // This function allows us to stock questions, options and answers to create enigmas.
     public function createEnigmas(){
         $questions = [
             "Who is the protagonist of the Dragon Ball series, known for his signature spiky hairstyle and his quest for the Dragon Balls?",
@@ -845,15 +928,16 @@ class Game {
         ];
 
         $answer = [
-            "Goku",
-            "Shenron",
-            "Kamehameha",
-            "Vegeta",
-            "Dragon Balls",
-            "Frost Demons",
-            "Akira Toriyama"
+            "goku",
+            "vhenron",
+            "kamehameha",
+            "vegeta",
+            "dragon balls",
+            "frost demons",
+            "akira toriyama"
         ];
         
+        // We stock array information in a collection that we call up to display the information we want. 
         $collection= [];
         for($i = 1; $i <=7; $i++){
             $question = new Question($questions[$i-1], $option[$i-1], $answer[$i-1]);
@@ -863,10 +947,25 @@ class Game {
     }
 
     public function doEnigma($question){
-        //TODO
-        $string = "Après ce combat intensif, je te propose une petite enigme pour récupérer un peu de vie.\n\nQuestion : " . $question->getQuestion()[$i] "\n\nVous avez comme option : " . implode(" " . $question->getGoodOption()[$i]);
+        $string = "After this intensive battle, I propose a little riddle to recover a little life.\n\nQuestion : " . $question->getQuestion() ."\n\nYou can choose : \n";
         $this->stringBuffer($string);
+        
+        for($i=1;$i<=4;$i++){
+            echo "\n" . $i. ". " . $question->getOption()[$i-1] . " \n";
+        }
+        $choice = strtolower(readline("Choose your answer : "));
+        if($choice == $question->getGoodOption()){
+            $this->player->setHp($this->player->getHp() + 30);
+            $string2 = "Good answer, your health has increase by 30hp.\n\n";
+            $this->stringBuffer($string2);
+        } else {
+            $string2 = "Bad answer!!\n\n";
+            $this->stringBuffer($string2);
+        }
 
+        readline("Press enter to continue_");
+        popen("cls", "w");
+    
     }
 
     public function createPower(){
@@ -885,11 +984,43 @@ class Game {
 
     // ----- STATS
     public function getStats(){
-        $statP = $this->player;
-        $string = "Here you are in a player's stats.\n\nName of hero : " . $statP->getName() . "\n\nHP of hero : " . $statP->getHp() . "\n\nDamage of hero : " . $statP->getDamage() . "\n\nMana of hero : " . $statP->getMana() . "\n\n";
-        $this->stringBuffer($string);
-        readline("\nPress enter to return on main : ");
         popen("cls", "w");
+        echo "\n\n\n                                                                            ";
+        $string = "Your stats.\n\n";
+        $this->stringBuffer($string);
+
+        echo "\n\n                                                                        ";
+        $string = "Name of hero : " . $this->player->getName(). "\n\n";
+        $this->stringBuffer($string);
+
+        echo "\n\n                                                                        ";
+        $string = "Health of hero : " . $this->player->getHp() . "\n\n";
+        $this->stringBuffer($string);
+
+        echo "\n\n                                                                        ";
+        $string = "Experience of hero : " . $this->player->getXp() . "\n\n";
+        $this->stringBuffer($string);
+
+        echo "\n\n                                                                        ";
+        $string = "Dragon ball of hero : " . $this->player->getDragonBall() . "\n\n";
+        $this->stringBuffer($string);
+
+        echo "\n\n                                                                        ";
+        $string = "Damage of hero : " . $this->player->getDamage() . "\n\n";
+        $this->stringBuffer($string);
+
+        echo "\n\n                                                                              ";
+        $string = "Powers : "; 
+        $this->stringBuffer($string);
+
+        foreach($this->player->getPowerList() as $key => $power){
+            echo "\n                       ";
+            $string =($key+1) . ". " . $power->getTitle() . " - " . $power->getDescription();
+            $this->stringBuffer($string);
+            echo "\n";
+        }
+
+        readline("\nPress enter to return on main : ");
         $this->mainMenu();
     }
 
@@ -907,6 +1038,70 @@ class Game {
             $this->stringBuffer($string);
             sleep(20);
             return $this->launchGame(); 
+        }
+    }
+
+    public function SenseiShop(){
+        popen("cls", "w");
+        echo "\n\n\n\n\n                                                                    ";
+        $string = "Sensei is here to help you train.";
+        $this->stringBuffer($string);
+
+        echo "\n\n\n                                                           ";
+        $string = "You can exchange XP earned in combat with upgrades.";
+        $this->stringBuffer($string);
+    
+
+        echo "\n\n\n\n                                                                          ";
+        $string = "1. Increase Health";
+        $this->stringBuffer($string);
+
+
+        echo "\n\n\n                                                                          ";
+        $string = "2. Increase Damage";
+        $this->stringBuffer($string);
+
+        $choice = readline("\n\n\n                                                                         Choose your option :\n");
+        switch($choice){
+            case 1 : 
+                if($this->player->getXp()>=20){
+                    $string = "\n\nYou increased your Health ! \n";
+                    $this->player->setMaxHealth($this->player->getMaxHealth()+5);
+                    $this->player->setHp($this->player->getMaxHealth());
+                    $this->stringBuffer($string);
+                    $this->player->setXp($this->player->getXp() - 20);
+                    readline();
+                    return $this->mainMenu();
+                }else{
+                    $string = "\n\nSensei can train you, but you don't have enough XP !\n";
+                    $this->stringBuffer($string);
+                    readline();
+                    return $this->SenseiShop();
+                }
+                break;
+            case 2 : 
+                if($this->player->getXp()>=20){
+                    $string = "\n\nYou increased your Damage output ! \n";
+                    $this->player->setDamage($this->player->getDamage()+2);
+                    $this->stringBuffer($string);
+                    $this->player->setXp($this->player->getXp() - 20);
+                    readline();
+                    return $this->mainMenu();
+                }else{
+                    $string = "\n\nSensei can train you, but you don't have enough XP !\n";
+                    $this->stringBuffer($string);
+                    readline();
+                    return $this->SenseiShop();
+                }
+                break;
+            case "" :
+                return $this->mainMenu();
+            default :
+                $string = "Sensei hasn't understood your choice, speak clearer (he is a bit deaf)";
+                $this->stringBuffer($string);
+                readline();
+                return $this->SenseiShop();
+                break;
         }
     }
 
