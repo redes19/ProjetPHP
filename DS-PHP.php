@@ -1,24 +1,25 @@
 <?php
-// creat a class personnage with attribut
+// Create a class personnage with attribut
 class Personnage {
-    // we use protected for better accessibility for children
+    // we use protected for better accessibility for the children (Hero and Villain classes);
     protected $name;
     protected $damage;
     protected $mana = 0;
     protected $hp;
     private $maxHealth;
     private $molecularAttack = false;
-
     protected $isDefending = false;
 
+    // construct for the name, damage and hp of a character
     public function __construct($N, $D, $H){
         $this->name = $N;
         $this->damage = $D;
         $this->hp = $H;
+        // maxHealth is the amount of health given at the start
         $this->maxHealth = $H;
     }
 
-    // Create a getter and setter
+    // GETTER
     public function getName(){
         return $this->name;
     }
@@ -41,6 +42,7 @@ class Personnage {
         return $this->molecularAttack;
     }
     
+    // SETTER
     public function setName($newName){
         $this->name = $newName;
     }
@@ -64,7 +66,9 @@ class Personnage {
     }
 }
 
+// Hero class for the player
 class Hero extends Personnage{
+    // private since there is no child to this cclass
     private $level = 0;
     private $xp = 0 ;
     private $dragonBall = 0;
@@ -74,6 +78,7 @@ class Hero extends Personnage{
         parent::__construct($N, $D, $H);
     }
 
+    // GETTER
     public function getLevel(){
         return $this->level;
     }
@@ -87,6 +92,7 @@ class Hero extends Personnage{
         return $this->powerList;
     }
 
+    // SETTER
     public function setLevel($newLevel){
         $this->level = $newLevel;
     }
@@ -100,21 +106,32 @@ class Hero extends Personnage{
         $this->powerList = $p;
     }
 
+    // add a power to the powerList of the player
     public function addPower($p){
         array_push($this->powerList, $p);
     }
 }
 
+// Villain is the class for the enemies
 class Villain extends Personnage{
+    // for now, Villain is a pretty basic class. 
+    // we chose not to expand on the class as to not burden the game demo
+    // so no powers for the Villain, but damage, health and other abilities of the Personnage Class
+    // they are all equally made, so you can rush to the end of the game faster
 
     public function __construct($N, $D, $H){
         parent::__construct($N, $D, $H);
     }
 }
 
+// Class to manage the quest (list them, can add more or remove)
 class DragonBallQuestManager{
+    // this Class exist to show the possibilities
+    
+    // list of the quests in the game, private as there is no child class
     private $collectionQuest = [];
 
+    // GETTER
     public function getCollectionQuest(){
         return $this->collectionQuest;
     }
@@ -122,6 +139,7 @@ class DragonBallQuestManager{
         return $this->idIndex;
     }
 
+    // SETTER
     public function setCollectionQuest($c){
         $this->collectionQuest = $c;
     }
@@ -130,13 +148,26 @@ class DragonBallQuestManager{
     }
 }
 
+// Class for the quests
 class DragonBallQuest {
+
+    // private as there is no child class
     private $title;
     private $description;
     private $enemy1;
     private $enemy2;
     private $enigma;
 
+    // -----
+    // There is 7 quests in this game, one for each Dragon Ball.
+    // each quest is on the same pattern :
+    // one fight
+    // one enigma/question to give the player a chance to regain health
+    // one fight
+    // end of quest
+    // -----
+    
+    // here you can see the two villains being created 
     public function __construct($t, $d, $e1, $e2, $e){
         $this->title = $t;
         $this->description = $d;
@@ -145,13 +176,13 @@ class DragonBallQuest {
         $this->enigma = $e;
     }
 
+    // GETTER
     public function getTitle(){
         return $this->title;
     }
     public function getDescription(){
         return $this->description;
     }
-
     public function getEnemy1(){
         return $this->enemy1;
     }
@@ -162,6 +193,7 @@ class DragonBallQuest {
         return $this->enigma;
     }
 
+    // SETTER
     public function setTitle($t){
         $this->title = $t;
     }
@@ -179,17 +211,22 @@ class DragonBallQuest {
     }
 }
 
+// Class for the Questions 
 class Question{
+
+    //private as there is no child class
     private $question;
     private $option = [];
     private $goodOption;
 
+    // questions or enigmas are in between fight to offer the possibility to regain lost health
     public function __construct($Q, $O, $GO){
         $this->question = $Q;
         $this->option = $O;
         $this->goodOption = $GO;
     }
 
+    // GETTER
     public function getQuestion(){
         return $this->question;
     }
@@ -200,6 +237,7 @@ class Question{
         return $this->goodOption;
     }
 
+    // SETTER
     public function setQuestion($newquestion){
         $this->question = $newquestion;
     }
@@ -212,18 +250,21 @@ class Question{
 
 }
 
+// Graphical / Animation Manager
+// To enhance the CLI screen
 class GraphicalManager{
     private $game;
     public function __construct($g){
         $this->game = $g;
     }
+    // function to hide cursor, purely cosmetic
+    // we get the current stream output
     function hideCursor($stream = STDOUT) {
-        fprintf($stream, "\033[?25l"); // hide cursor
-        register_shutdown_function(function() use($stream) {
-            fprintf($stream, "\033[?25h"); //show cursor
-        });
+        fprintf($stream, "\033[?25l"); 
+        // and remove the cursor caracter
     }
-
+    
+// function for the first main start screen
 function gameStartScreen(){
         popen("cls","w");
         $string = "
@@ -263,10 +304,15 @@ function gameStartScreen(){
     |
     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾";
         echo $string;
+        // readline is used to pose and force the player to press enter to continue 
         readline();
-        // $this->fightScreen();
 }
+// function for the screen of combat
 function fightScreen($text){
+        // here, we have the screen for the combat
+        // the for() loop are because we need to place the right amount of spaces between variables and the image
+        // for example, "Maxime" and "Loris" have not the same string length. so if we put more ascii caracters after them, they won't have the same emplacement
+        // instead, we remove or place empty spaces to adjust the position
         popen("cls","w");
         $string = "    _______________________________________________________________________________________________________________________________________________________
      
@@ -345,7 +391,10 @@ function fightScreen($text){
 }
 }
 
+// Class for the Powers
 class Power {
+
+    //private as there is no child class
     private $title;
     private $description;
     private $ingameDescription;
@@ -358,6 +407,7 @@ class Power {
         $this->manaCost = $m;
     }
 
+    // GETTER
     public function getTitle(){
         return $this->title;
     }
@@ -371,6 +421,7 @@ class Power {
         return $this->manaCost;
     }
 
+    // SETTER
     public function setTitle($t){
         $this->title = $t;
     }
@@ -385,7 +436,9 @@ class Power {
     }
 }
 
+// Main class of the script, allows to run a game
 class Game {
+    //private as there is no child class
     private $player;
     private $dragonBallQuestManager ;
     private $currentEnemy = null;
@@ -393,12 +446,18 @@ class Game {
     private $collectionPower = [];
 
     public function __construct(){
+        // we instanciate the quest manager and the graphical one, so we can access them from here
         $this->dragonBallQuestManager = new DragonBallQuestManager;
         $this->graphicalManager = new GraphicalManager($this);
+
+        // special function to hide the cursor, purely cosmetic
         $this->graphicalManager->hideCursor();
+
+        // at last, launch the Game !
         $this->launchGame();
     }
 
+    // GETTER
     public function getPlayer(){
         return $this->player;
     }
@@ -406,34 +465,45 @@ class Game {
         return $this->currentEnemy;
     }
     
+    // no setter :'( they were no needed
+
+    // function to show the inputted string, caracter by caracter
+    // is used often
     public function stringBuffer($string){
+        // ob_start slows output (il temporise la sortie)
         ob_start();
-        $buffer = str_repeat("", 1); // fill the buffer
+        // fill the buffer
+        $buffer = str_repeat("", 1); 
 
         $len = strlen($string);
         $sleep = 1; // sleep between output chars
 
         for($i=0; $i < $len; $i++) {
             echo $buffer . $string[$i];
+            // send the text
             ob_flush();
-            flush();
+            // wait a bit
             usleep($sleep);
         }
+        // stop the slowing of output
         ob_end_clean();
     }
 
+    // function to initialize the game
     public function launchGame(){
+        // create all basic necessities : quests, enemies and powers
         $this->createQuests();
         $this->createEnemies();
         $this->createPower();
 
+        // show the gameStartScreen
         $this->graphicalManager->gameStartScreen();
 
         //choose between start new game, launch a save, and close game
         popen("cls","w");
         echo "\n\n\n\n\n                                                                          ";
         $string = "Welcome ingame\n"; 
-        $this->stringBuffer($string);
+        $this->stringBuffer($string); // we use our function to slow down output of string 
         echo "\n\n\n\n\n                                                          1. Create a new Hero to get the 7 Dragon Balls\n\n\n\n                                                                          2. Load a save\n\n\n\n                                                                           3. Quit Game\n\n\n\n";
         $choice = readline("\n\n                                                                               ");
         switch($choice){
@@ -450,6 +520,7 @@ class Game {
     }    
 
     // ----- LAUNCH A NEW FILE GAME
+    // In this function we create several tables where we put information for our quests.
     public function createQuests(){
         $title = [
             "The Mystical Adventure of the Dragon Ball of Earth",
@@ -479,7 +550,9 @@ class Game {
     }
 
     // CREATE ENEMIES
+    // In this function we create a different enemies with many features
     public function createEnemies(){
+        // in order : name, damage, health, power (no used)
         $enemies = [
             ["Freezer", 10, 10, "Téléportation"],
             ["Cellule", 10, 10, "Kienzan"],
@@ -502,6 +575,7 @@ class Game {
     
     // CREATE NEW PLAYER - only available at game start
     public function createPlayer(){
+        // popen("cls","w"); clears the screen
         popen("cls", "w");
         echo "\n\n\n                                                                         ";
         $string = "Character Creation : \n\n\n";
@@ -520,6 +594,7 @@ class Game {
         $this->stringBuffer($string);
 
         $created = false;
+        // do{}while() to check if the inputted name is allowed
         do{
             echo "\n\n\n\n\n                                                                        ";
             $string = "Enter your name, Hero :\n";
@@ -530,17 +605,21 @@ class Game {
             if(strlen($name)==0){
                 echo "\n                                                    Your name cannot be registered in our Hero list, please retry.\n";
             }else{
+                /// create a new player in the game
                 $this->player = new Hero ($name, 12, 15);
                 $this->player->addPower($this->collectionPower[0]);
                 $created = true;
             }
         } while ($created == false);
+        
         popen("cls", "w");
         echo "\n\n\n\n\n\n\n\n\n                                                      ";
         $string = "Your name is " . $this->player->getName() . ", you deal " . $this->player->getDamage() . " Damage and have " . $this->player->getHp() . " Health Points.\n";
         $this->stringBuffer($string);
+
         readline("\n\n\n\n                                                                          Press enter to continue_");
         popen("cls", "w");
+        
         $this->mainMenu();
     }
 
@@ -553,6 +632,7 @@ class Game {
         
         echo "\n\n\n\n\n\n\n                                                                  1. Search for the Dragon Balls\n\n\n\n                                                                       2. Watch your stats\n\n\n\n                                                                        3. Save your game\n\n\n\n                                                                        4. Visit Sensei\n\n\n\n                                                                          5. Quit Game";
         
+        // check if the player has finished the game 
         $this->checkEnd();
 
         echo "\n\n\n\n\n\n\n                                                                                 ";
@@ -626,7 +706,6 @@ class Game {
                 return $this->saveGame();
             }
         }
-        // sleep(10000);
 
         //serialize the player infos
         $charData = serialize($this->player);
@@ -643,36 +722,57 @@ class Game {
         return $this->mainMenu();
     }
 
-
-
-    // ----- FIGHT 
+    // ----- Launch FIGHT 
+    // the fight / quest is linear : one fight, a question, one fight against a 2nd enemy, win
+    // ... or lose, if the player died
     public function searchDragonBall(){
         popen("cls", "w");
 
+        // $quest is the current quest
         $quest = $this->dragonBallQuestManager->getCollectionQuest()[$this->player->getDragonBall()];
+
         echo "\n\n\n\n\n                                                        ";
         $string = $quest->getTitle() . "\n\n\n\n\n" . $quest->getDescription();
         $this->stringBuffer($string);
         readline("\n\n\n\n                                                                                                                  Press enter to continue_");
 
+        // reset the player stats at the start of a quest
         $this->resetStats();
+        // set the first enemy 
         $this->currentEnemy = $quest->getEnemy1();
+        // reset his stats
         $this->resetEnemyStats();
+
+        // fight transition ! (musique de combat Pokémon)
         $this->fightTransition();
+
+        // check if player died, else continue
         if($this->player->getHp()<=0){
             return $this->playerDeath();
         }
+
+        // question time, do the enigma (or question, same thing)
         $this->doEnigma($quest->getEnigma());
+        
+        // set second enemy
         $this->currentEnemy = $quest->getEnemy2();
+        //reset his stats
         $this->resetEnemyStats();
+
+        // fight transition 2! (musique de combat Pokémon)
         $this->fightTransition();
+
+        // check if player died, else continue
         if($this->player->getHp()<=0){
             return $this->playerDeath();
         }
+        
+        // remove the current enemy, and show the win quest
         $this->currentEnemy = null;
         $this->playerWinQuest();
     }
 
+    // Transition from menu to fight scene
     public function fightTransition(){
         popen("cls","w");
         $string = "\n\n\n\n\n\n                                                                               A fight starts !";
@@ -681,54 +781,67 @@ class Game {
         $this->fightMenu();
     }
 
+    // Player died, send to menu
     public function playerDeath(){
         echo "\n                                               ";
-        $string = "You ded bro LOSER";
+        $string = "You lost the quest, too bad ! ";
         $this->stringBuffer($string);
         readline("\nPress enter to continue_");
         $this->resetStats();
         return $this->mainMenu();
     }
 
+    // Player win, show what he won and send back to menu
     public function playerWinQuest(){
         popen("cls","w");
+
         echo "\n                                                            ";
         $string = "You earned this DragonBall !";
         $this->stringBuffer($string);
+
         echo "\n\n                                                               ";
         $string = "*you got DragonBall " . ($this->player->getDragonBall()+1);
         $this->stringBuffer($string);
 
+        // give a DragonBall
         $this->player->setDragonBall($this->player->getDragonBall()+1);
+
+        // give a new power if there is new powers
         if( $this->player->getDragonBall() < count($this->collectionPower)){
             echo "\n\n                                           ";
             $string = "You also discovered a new ability : " . $this->collectionPower[$this->player->getDragonBall()]->getTitle() . " ! \n";
             $this->stringBuffer($string);
+            
             $this->player->addPower($this->collectionPower[$this->player->getDragonBall()]);
         }
+
         echo "\n                                                               ";
         readline("Press enter to continue_");
         $this->resetStats();
+
         return $this->mainMenu();
     }
 
+    // Reset stats of player
     public function resetStats(){
         $this->player->setHp($this->player->getMaxHealth());
         $this->player->setMana(0);
     }
     
+    // Reset stats of enemy
     public function resetEnemyStats(){
         $this->currentEnemy->setHp($this->currentEnemy->getMaxHealth());
         $this->currentEnemy->setMana(0);
     }
-
+    
+    // Menu of fight    
     public function fightMenu(){
         $this->player->setIsDefending(false);
         
         $text = ["Your Turn ! What will you do ?", "Attack ! ( " . $this->player->getDamage() ." damage)" , "Defend ! (get half-damage)", "Use a Special Ability !"];
         $this->graphicalManager->fightScreen($text);
 
-
+        // choice of combat action
         $choice = readline(" ");
         switch ($choice) {
             case 1:
@@ -744,21 +857,24 @@ class Game {
                 $this->fightMenu();
                 break;
         }
-    }
+    } 
 
+    // function that manages player damage and mana allocation 
     public function playerAttack(){
+        // Depending on the number obtained, the attack may succeed or fail. 
         $rand = rand(1, 10);
         $string = "";
+        // If the player succeeds in the attack, he gives all the damage to the opponent, otherwise his attack is divided by 2.
         if($rand >= 2){
             $damage = $this->player->getDamage();
         } else{
             $string .= "You missed your attack and did only half damage ! ";
             $damage = floor($this->player->getDamage() / 2);
-            // $this->player->setHP() --;
         }
         if($this->player->getMolecularAttack()==true){
             $damage *= 2;
         }
+        // defense statuses that give different damage depending on whether the defense status is true or false
         if($this->currentEnemy->getIsDefending() == true){
             $this->currentEnemy->setHp($this->currentEnemy->getHp() - floor($damage/2) );
             $string .= "You did " . floor($damage/2) ." damage !";
@@ -775,6 +891,7 @@ class Game {
         return $this->enemyTurn();
     }
 
+    // creation of a defense statute for player
     public function playerDefend(){
         $this->player->setIsDefending(true);
         $text = ["You chose to defend !"];
@@ -783,6 +900,7 @@ class Game {
         return $this->enemyTurn();
     }
 
+    // function that gives player powers
     public function playerPower(){  
         $text = ["You chose to use your powers ! Current Mana : " . $this->player->getMana()];
         foreach($this->player->getPowerList() as $key => $power){
@@ -792,6 +910,7 @@ class Game {
         $this->graphicalManager->fightScreen($text);
         $index = readline();
 
+        // Depending on the character's power, attacks have different effects
         if(is_int($index) && isset($this->player->getPowerList()[$index-1]) && $this->player->getMana()>=$this->player->getPowerList()[$index-1]->getManaCost()){
             switch($this->player->getPowerList()[$index-1]->getTitle()){
                 case "Ki Absorption" :
@@ -842,17 +961,21 @@ class Game {
         return $this->enemyTurn();
     }
 
+    // function to be called after the player's attack, giving the bot an action
     public function enemyTurn(){
+        // We check if enemy is alive
         if($this->currentEnemy->getHp()<=0){
             return $this->checkFight();
         }
         
+        // give the enemy a turn
         $text = ["It is ".$this->currentEnemy->getName()."'s turn !"];
         $this->graphicalManager->fightScreen($text);
         readline();
         
         $this->currentEnemy->setIsDefending(false);
         
+        // Depending of rand, choice gives the enemy an action
         $choice = rand(1,10);
         if($this->currentEnemy->getMana() > 49 && $choice>=8 ){
             return $this->enemyPower();
@@ -863,7 +986,9 @@ class Game {
         }
     }
     
+    // the function for attack of enemie 
     public function enemyAttack(){
+        // we checked if player has a statue of defend, for attribut a different dommage has player
         if($this->player->getIsDefending()== true){
             $this->player->setHp($this->player->getHp() - floor($this->currentEnemy->getDamage()/2 ) );
             $string = "\nYou took " . floor($this->currentEnemy->getDamage()/2 ) ." damage !\n";
@@ -880,6 +1005,7 @@ class Game {
         $this->checkFight();
     }
 
+    // creation of a defense statute for enemie
     public function enemyDefend(){
         $this->currentEnemy->setIsDefending(true);
         $text = [$this->currentEnemy->getName() . " has chosen to defend himself !"];
@@ -888,6 +1014,7 @@ class Game {
         $this->checkFight();
     }
 
+    // function that gives enemie powers
     public function enemyPower(){
         $text = [$this->currentEnemy->getName() . " has chosen to use his powers !", "Looks like he acted like a Magicarp : his special power do nothing !", "(Enemies powers not implemented to get to the endgame faster)"];
         $this->graphicalManager->fightScreen($text);
@@ -897,10 +1024,12 @@ class Game {
 
     // This function is used to check whether the enemy is dead or not, in order to continue the game and redirect the player to another function.
     public function checkFight(){
+        // We checked if player or enemie is dead
         if($this->currentEnemy->getHp()<=0){
             $xp = $this->currentEnemy->getMaxHealth() * 2;
             $text = ["You Won ! + " .$xp . "XP" ];
             $this->graphicalManager->fightScreen($text);
+            // If player won, he gets xp
             $this->player->setXp($this->player->getXp() + $xp);
             readline();
             return false;
