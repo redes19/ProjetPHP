@@ -900,10 +900,10 @@ class Game {
             $string = $this->player->getName().", you have finished all the quests...";
             $this->stringBuffer($string);
             echo "\n                                      ";
-            $string = "All the Dragon Balls are in your hands ( ( ͡❛ ͜ʖ ͡❛) ) , you gained ultimate power in this universe."
+            $string = "All the Dragon Balls are in your hands ( ( ͡❛ ͜ʖ ͡❛) ) , you gained ultimate power in this universe.";
             $this->stringBuffer($string);
             echo "\n                                          ";
-            $string = "Hopefully, you will use it with care... Goodbye !"
+            $string = "Hopefully, you will use it with care... Goodbye !";
             $this->stringBuffer($string);
             sleep(20);
             return $this->launchGame(); 
