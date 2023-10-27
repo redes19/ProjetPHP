@@ -9,14 +9,18 @@ class Personnage {
     private $maxHealth;
     private $molecularAttack = false;
     protected $isDefending = false;
+    protected $speed;
+    protected $maxSpeed;
 
     // construct for the name, damage and hp of a character
-    public function __construct($N, $D, $H){
+    public function __construct($N, $D, $H, $SP){
         $this->name = $N;
         $this->damage = $D;
         $this->hp = $H;
         // maxHealth is the amount of health given at the start
         $this->maxHealth = $H;
+        $this->speed = $SP;
+        $this->maxSpeed = $SP;
     }
 
     // GETTER
@@ -41,6 +45,12 @@ class Personnage {
     public function getMolecularAttack(){
         return $this->molecularAttack;
     }
+    public function getSpeed(){
+        return $this->speed;
+    }
+    public function getMaxSpeed(){
+        return $this->maxSpeed;
+    }
     
     // SETTER
     public function setName($newName){
@@ -64,6 +74,12 @@ class Personnage {
     public function setMolecularAttack($bool){
         $this->molecularAttack = $bool;
     }
+    public function setSpeed($newSpeed){
+        $this->speed = $newSpeed;
+    }
+    public function setMaxSpeed($newMaxSpeed){
+        $this->maxSpeed = $newMaxSpeed;
+    }
 }
 
 // Hero class for the player
@@ -74,8 +90,8 @@ class Hero extends Personnage{
     private $dragonBall = 0;
     private $powerList = [];
 
-    public function __construct($N, $D, $H){
-        parent::__construct($N, $D, $H);
+    public function __construct($N, $D, $H , $SP){
+        parent::__construct($N, $D, $H , $SP);
     }
 
     // GETTER
@@ -119,8 +135,8 @@ class Villain extends Personnage{
     // so no powers for the Villain, but damage, health and other abilities of the Personnage Class
     // they are all equally made, so you can rush to the end of the game faster
 
-    public function __construct($N, $D, $H){
-        parent::__construct($N, $D, $H);
+    public function __construct($N, $D, $H, $SP){
+        parent::__construct($N, $D, $H, $SP);
     }
 }
 
@@ -171,8 +187,8 @@ class DragonBallQuest {
     public function __construct($t, $d, $e1, $e2, $e){
         $this->title = $t;
         $this->description = $d;
-        $this->enemy1 = new Villain ($e1[0], $e1[2], $e1[1]);
-        $this->enemy2 = new Villain ($e2[0], $e2[2], $e2[1]);
+        $this->enemy1 = new Villain ($e1[0], $e1[2], $e1[1], $e1[3]);
+        $this->enemy2 = new Villain ($e2[0], $e2[2], $e2[1], $e1[3]);
         $this->enigma = $e;
     }
 
@@ -313,13 +329,15 @@ function fightScreen($text){
         // the for() loop are because we need to place the right amount of spaces between variables and the image
         // for example, "Maxime" and "Loris" have not the same string length. so if we put more ascii caracters after them, they won't have the same emplacement
         // instead, we remove or place empty spaces to adjust the position
+
         popen("cls","w");
+        
         $string = "    _______________________________________________________________________________________________________________________________________________________
      
     #########################################(                                                                            ,#%          ,%#%                                  
                                            ,/&%                                                                      *((((//(#@      *,#%**%                                \n             ";   
-        $string .= $this->game->getCurrentEnemy()->getName();
-        for($i=0;$i<=(30-(strlen($this->game->getCurrentEnemy()->getName())));$i++){
+        $string .= $this->game->getCurrentEnemy()->getName() . " - Turn in : " . $this->game->getCurrentEnemy()->getSpeed();
+        for($i=0;$i<=(15-(strlen($this->game->getCurrentEnemy()->getName())));$i++){
             $string .= " ";
         }
         $string .= ",&#                                                                    .#///////((#(&    .%/*,,*#                                
@@ -358,7 +376,7 @@ function fightScreen($text){
                        %@@@@@@@@%%%,    *                                                                          (&.                   
                        .@@@@@@@@(*/%@%@##                                                                           (&.      ";
     
-        $string .= $this->game->getPlayer()->getName() ."\n                         .%////(/**@,,,,                                                                            .(&.            
+        $string .= $this->game->getPlayer()->getName() . " - Turn in : " . $this->game->getPlayer()->getSpeed()."\n                         .%////(/**@,,,,                                                                            .(&.            
                    .((%&%***/**/(/**##%%/,                                                                          .(&.        HP : " . $this->game->getPlayer()->getHp() ."
                  .@,**,(%%%%%%%%%%%%%/      *                                                                       .(&.         
                . (*/#(*%%%%%%%%%%%%./,/,    . @                                                                     .(&.        Mana : " . $this->game->getPlayer()->getMana() ."
@@ -373,17 +391,19 @@ function fightScreen($text){
         for($i=0;$i<=(68-(strlen($text[0])));$i++){
             $string .= " ";
         }
-        
-        for($j=0; $j<(count($text)-1);$j++){
-            $string .= "                                                                  
-                                                                                                             
-                                       ";
-            $string .= ($j+1) . ". " . $text[$j+1];
-            for($i=0;$i<=(60-(strlen($text[$j+1])));$i++){
-                $string .= " ";
+        if(isset($text[1])){
+            for($j=0; $j<(count($text[1]));$j++){
+                $string .= "                                                                  
+                                                                                                                 
+                                           ";
+                $string .= ($j+1) . ". " . $text[1][$j];
+                for($i=0;$i<=(60-(strlen($text[1][$j])));$i++){
+                    $string .= " ";
+                }
+                
             }
-            
         }
+        
         $string .= "     
                                                                                                             ";
 
@@ -495,7 +515,6 @@ class Game {
         $this->createQuests();
         $this->createEnemies();
         $this->createPower();
-
         // show the gameStartScreen
         $this->graphicalManager->gameStartScreen();
 
@@ -554,21 +573,21 @@ class Game {
     public function createEnemies(){
         // in order : name, damage, health, power (no used)
         $enemies = [
-            ["Freezer", 10, 10, "Téléportation"],
-            ["Cellule", 10, 10, "Kienzan"],
-            ["Majin Buu", 10, 10, "Taiyoken"],
-            ["Vegeta", 10, 10, "Kamehameha"],
-            ["Napa", 10, 10, "Makankosappo"],
-            ["Raditz", 10, 10, "Vol"],
-            ["Broly", 10, 10, "Ultimate Gohan"],
-            ["Glacière", 10, 10, "glace"],
-            ["Dr Gero", 10, 10, "hypnose"],
-            ["Zamasu", 10, 10, "Saut dans le temps"],
-            ["Babidi", 10, 10, "power"],
-            ["Dabura", 10, 10, "Vol"],
-            ["Ail Jr.", 10, 10, "hypnose"],
-            ["Turles", 10, 10, "absorption d'énergie"],
-            ["Capitaine Ginyu", 10, 10, "absorption d'énergie"]
+            ["Freezer", 10, 10, 10, "Téléportation"],
+            ["Cellule", 10, 10, 10, "Kienzan"],
+            ["Majin Buu", 10, 10, 10, "Taiyoken"],
+            ["Vegeta", 10, 10, 10, "Kamehameha"],
+            ["Napa", 10, 10, 10, "Makankosappo"],
+            ["Raditz", 10, 10, 10, "Vol"],
+            ["Broly", 10, 10, 10, "Ultimate Gohan"],
+            ["Glacière", 10, 10, 10, "glace"],
+            ["Dr Gero", 10, 10, 10, "hypnose"],
+            ["Zamasu", 10, 10, 10, "Saut dans le temps"],
+            ["Babidi", 10, 10, 10, "power"],
+            ["Dabura", 10, 10, 10, "Vol"],
+            ["Ail Jr.", 10, 10, 10, "hypnose"],
+            ["Turles", 10, 10, 10, "absorption d'énergie"],
+            ["Capitaine Ginyu", 10, 10, 10, "absorption d'énergie"]
         ];
         return $enemies;
     }
@@ -606,7 +625,7 @@ class Game {
                 echo "\n                                                    Your name cannot be registered in our Hero list, please retry.\n";
             }else{
                 /// create a new player in the game
-                $this->player = new Hero ($name, 12, 15);
+                $this->player = new Hero ($name, 12, 15, 8);
                 $this->player->addPower($this->collectionPower[0]);
                 $created = true;
             }
@@ -758,6 +777,7 @@ class Game {
         $this->currentEnemy = $quest->getEnemy2();
         //reset his stats
         $this->resetEnemyStats();
+        $this->player->setSpeed($this->player->getMaxSpeed());
 
         // fight transition 2! (musique de combat Pokémon)
         $this->fightTransition();
@@ -778,8 +798,32 @@ class Game {
         $string = "\n\n\n\n\n\n                                                                               A fight starts !";
         $this->stringBuffer($string);
         usleep(1500000);
-        $this->fightMenu();
+        $this->waitForTurn();
+        // $this->fightMenu();
     }
+
+
+    // speed challenge between our hero and his enemy ! this function checks for which one gets to 0 first, and then, it's is turn !
+    public function waitForTurn(){
+        while($this->player->getSpeed()>0 && $this->currentEnemy->getSpeed() > 0 ) {
+            $this->player->setSpeed($this->player->getSpeed()-1);
+            $this->currentEnemy->setSpeed($this->currentEnemy->getSpeed()-1);
+
+            $text = ["",[],[$this->currentEnemy->getSpeed(),$this->player->getSpeed()]];
+
+            // we show the screen with the new speed value !
+            $this->graphicalManager->fightScreen($text);
+            sleep(1);
+        }
+        if ($this->player->getSpeed() == 0 ){
+            $this->player->setSpeed($this->player->getMaxSpeed());
+            $this->fightMenu();
+        }elseif($this->currentEnemy->getSpeed() == 0){
+            $this->currentEnemy->setSpeed($this->currentEnemy->getMaxSpeed());
+            $this->enemyTurn();
+        }
+    }
+
 
     // Player died, send to menu
     public function playerDeath(){
@@ -796,11 +840,11 @@ class Game {
         popen("cls","w");
 
         echo "\n                                                            ";
-        $string = "You earned this DragonBall !";
+        $string = "                            You earned this DragonBall !\n\n";
         $this->stringBuffer($string);
 
         echo "\n\n                                                               ";
-        $string = "*you got DragonBall " . ($this->player->getDragonBall()+1);
+        $string = "                          *you got DragonBall " . ($this->player->getDragonBall()+1 . "\n\n");
         $this->stringBuffer($string);
 
         // give a DragonBall
@@ -809,14 +853,14 @@ class Game {
         // give a new power if there is new powers
         if( $this->player->getDragonBall() < count($this->collectionPower)){
             echo "\n\n                                           ";
-            $string = "You also discovered a new ability : " . $this->collectionPower[$this->player->getDragonBall()]->getTitle() . " ! \n";
+            $string = "                                    You also discovered a new ability : " . $this->collectionPower[$this->player->getDragonBall()]->getTitle() . " ! \n\n";
             $this->stringBuffer($string);
             
             $this->player->addPower($this->collectionPower[$this->player->getDragonBall()]);
         }
 
         echo "\n                                                               ";
-        readline("Press enter to continue_");
+        readline("                                  Press enter to continue_");
         $this->resetStats();
 
         return $this->mainMenu();
@@ -826,12 +870,16 @@ class Game {
     public function resetStats(){
         $this->player->setHp($this->player->getMaxHealth());
         $this->player->setMana(0);
+        $this->player->setSpeed($this->player->getMaxSpeed());
+
     }
     
     // Reset stats of enemy
     public function resetEnemyStats(){
         $this->currentEnemy->setHp($this->currentEnemy->getMaxHealth());
         $this->currentEnemy->setMana(0);
+        $this->currentEnemy->setSpeed($this->currentEnemy->getMaxSpeed());
+
     }
     
     // Menu of fight    
@@ -840,7 +888,7 @@ class Game {
         $this->player->setIsDefending(false);
         
         // show the fight scene
-        $text = ["Your Turn ! What will you do ?", "Attack ! ( " . $this->player->getDamage() ." damage)" , "Defend ! (get half-damage)", "Use a Special Ability !"];
+        $text = ["Your Turn ! What will you do ?", ["Attack ! ( " . $this->player->getDamage() ." damage)" , "Defend ! (get half-damage)", "Use a Special Ability !"]];
         $this->graphicalManager->fightScreen($text);
 
         // choice of combat action
@@ -890,16 +938,16 @@ class Game {
         $this->graphicalManager->fightScreen($text);
         readline();
         $this->player->setMolecularAttack(false);
-        return $this->enemyTurn();
+        return $this->waitForTurn();
     }
 
     // creation of a defense status for the player
     public function playerDefend(){
         $this->player->setIsDefending(true);
-        $text = ["You chose to defend !"];
+        $text = ["You chose to defend !", []];
         $this->graphicalManager->fightScreen($text);
         readline();
-        return $this->enemyTurn();
+        return $this->waitForTurn();
     }
 
     // player use his power, beware !
@@ -908,10 +956,12 @@ class Game {
         $text = ["You chose to use your powers ! Current Mana : " . $this->player->getMana()];
         
         //list powers
+        $string1 = [];
         foreach($this->player->getPowerList() as $key => $power){
             $string = $power->getTitle() . " : " . $power->getIngameDescription() . " - " . $power->getManaCost() . " Mana Cost";
-            array_push($text, $string);
+            array_push($string1, $string);
         }
+        array_push($text, $string1);
 
         // show on the fight scene
         $this->graphicalManager->fightScreen($text);
@@ -923,7 +973,7 @@ class Game {
                 case "Ki Absorption" :
                     $this->currentEnemy->setHp($this->currentEnemy->getHp() - 10);
                     $this->player->setHp($this->player->getHp() + 10);
-                    $text = "You did 10 damage and gained 10 HP !";
+                    $text = ["You did 10 damage and gained 10 HP !"];
                     break;
                 case "Temporal Manipulation" :
                     $text = [" "];
@@ -933,6 +983,7 @@ class Game {
                         $damage = $this->player->getDamage();
                     }
                     for($i=0;$i<=1;$i++){
+                        $string1 = [];
                         if($this->currentEnemy->getIsDefending()== true){
                             $this->currentEnemy->setHp($this->currentEnemy->getHp() - floor($damage/2) );
                             $string = "You did" . $damage ." damage !";
@@ -941,31 +992,32 @@ class Game {
                             $string = "You did" . $damage ." damage !";
                             $this->player->setMana($this->player->getMana() + 3);
                         }
+                        array_push($string1,$string);
                         array_push($text, $string);
                         $this->player->setMolecularAttack(false);
                     }
                     break;
                 case "Molecular Control" :
-                    $text = "You prepare yourself for your next attack !";
+                    $text = ["You prepare yourself for your next attack !"];
                     $this->player->setMolecularAttack(true);
                     break;
                 case "Matter Absorption" :
-                    $text = "You healed yourself 30 HP !";
+                    $text = ["You healed yourself 30 HP !"];
                     $this->player->setHp($this->player->getHp() + 30);
                     break;
                 case "Kamehameha" :
                     $this->currentEnemy->setHp($this->currentEnemy->getHp() - 50);
-                    $text = "You dealt an amazing 50 damage !";
+                    $text = ["You dealt an amazing 50 damage !"];
                     break;
             }
-            $this->graphicalManager->fightScreen($string);
+            $this->graphicalManager->fightScreen($text);
 
         }elseif($index == ""){
             return $this->fightMenu();
         }else{
             return $this->playerPower();
         }
-        return $this->enemyTurn();
+        return $this->waitForTurn();
     }
 
     // function to be called after the player's attack, giving the bot an action
@@ -1047,7 +1099,7 @@ class Game {
             readline();
             return $this->mainMenu();
         }
-        return $this->fightMenu();
+        return $this->waitForTurn();
     }
 
     // This function allows us to stock questions, options and answers to create enigmas.
