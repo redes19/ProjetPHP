@@ -836,8 +836,10 @@ class Game {
     
     // Menu of fight    
     public function fightMenu(){
+        // reset defending state of the player
         $this->player->setIsDefending(false);
         
+        // show the fight scene
         $text = ["Your Turn ! What will you do ?", "Attack ! ( " . $this->player->getDamage() ." damage)" , "Defend ! (get half-damage)", "Use a Special Ability !"];
         $this->graphicalManager->fightScreen($text);
 
@@ -859,7 +861,7 @@ class Game {
         }
     } 
 
-    // function that manages player damage and mana allocation 
+    // function that manages player attack
     public function playerAttack(){
         // Depending on the number obtained, the attack may succeed or fail. 
         $rand = rand(1, 10);
@@ -891,7 +893,7 @@ class Game {
         return $this->enemyTurn();
     }
 
-    // creation of a defense statute for player
+    // creation of a defense status for the player
     public function playerDefend(){
         $this->player->setIsDefending(true);
         $text = ["You chose to defend !"];
@@ -900,13 +902,18 @@ class Game {
         return $this->enemyTurn();
     }
 
-    // function that gives player powers
+    // player use his power, beware !
     public function playerPower(){  
+        // show mana of the player
         $text = ["You chose to use your powers ! Current Mana : " . $this->player->getMana()];
+        
+        //list powers
         foreach($this->player->getPowerList() as $key => $power){
             $string = $power->getTitle() . " : " . $power->getIngameDescription() . " - " . $power->getManaCost() . " Mana Cost";
             array_push($text, $string);
         }
+
+        // show on the fight scene
         $this->graphicalManager->fightScreen($text);
         $index = readline();
 
@@ -968,14 +975,14 @@ class Game {
             return $this->checkFight();
         }
         
-        // give the enemy a turn
+        // give the enemy his turn
         $text = ["It is ".$this->currentEnemy->getName()."'s turn !"];
         $this->graphicalManager->fightScreen($text);
         readline();
         
         $this->currentEnemy->setIsDefending(false);
         
-        // Depending of rand, choice gives the enemy an action
+        // choice gives the enemy an action depend of the random number
         $choice = rand(1,10);
         if($this->currentEnemy->getMana() > 49 && $choice>=8 ){
             return $this->enemyPower();
@@ -986,7 +993,7 @@ class Game {
         }
     }
     
-    // the function for attack of enemie 
+    // the function for attack of enemy
     public function enemyAttack(){
         // we checked if player has a statue of defend, for attribut a different dommage has player
         if($this->player->getIsDefending()== true){
@@ -1005,7 +1012,7 @@ class Game {
         $this->checkFight();
     }
 
-    // creation of a defense statute for enemie
+    // creation of a defense statute for enemy
     public function enemyDefend(){
         $this->currentEnemy->setIsDefending(true);
         $text = [$this->currentEnemy->getName() . " has chosen to defend himself !"];
@@ -1014,7 +1021,7 @@ class Game {
         $this->checkFight();
     }
 
-    // function that gives enemie powers
+    // the enemy use his powers
     public function enemyPower(){
         $text = [$this->currentEnemy->getName() . " has chosen to use his powers !", "Looks like he acted like a Magicarp : his special power do nothing !", "(Enemies powers not implemented to get to the endgame faster)"];
         $this->graphicalManager->fightScreen($text);
@@ -1077,20 +1084,25 @@ class Game {
         // We stock array information in a collection that we call up to display the information we want. 
         $collection= [];
         for($i = 1; $i <=7; $i++){
+            // Create a instance of Question and pushing in array $collection
             $question = new Question($questions[$i-1], $option[$i-1], $answer[$i-1]);
             array_push($collection, $question);
         }
         return $collection;
     }
 
+    // Give a enigmas
     public function doEnigma($question){
         popen("cls","w");
+        // Display Question and the option
         $string = "After this intensive battle, I propose a little riddle to recover a little life.\n\nQuestion : " . $question->getQuestion() ."\n\nYou can choose : \n";
         $this->stringBuffer($string);
         
         for($i=1;$i<=4;$i++){
             echo "\n" . $i. ". " . $question->getOption()[$i-1] . " \n";
         }
+        // Proposed answer to the question
+        // If the player has the right answer he gets a life regen else he goes on to the next fight
         $choice = strtolower(readline("Choose your answer : "));
         if($choice == $question->getGoodOption()){
             $this->player->setHp($this->player->getHp() + 30);
@@ -1106,6 +1118,8 @@ class Game {
     
     }
 
+    // This function has a array of power for player
+    // create the powers. this list can be improved
     public function createPower(){
         $powerList = [
             ["Ki Absorption","Your character can absorb and manipulate the energy of other living beings, enhancing their own power and weakening their opponents.","Steal life from your enemy.",20],
@@ -1162,7 +1176,9 @@ class Game {
         $this->mainMenu();
     }
 
+    // ----- END
     public function checkEnd(){
+        // if the player has enough Dragon Ball, end the game, send to start menu
         if( $this->player->getDragonBall() == 7 ){
             popen("cls", "w");
             echo "\n                                          ";
@@ -1179,6 +1195,7 @@ class Game {
         }
     }
 
+    // SENSEI SHOP - to exchange XP to buffs
     public function SenseiShop(){
         popen("cls", "w");
         echo "\n\n\n\n\n                                                                    ";
